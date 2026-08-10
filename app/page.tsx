@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Tab = "brackets" | "funding";
+type SiteSettings = { brand: string; hero: string; intro: string; email: string; accent: string; bracketsLabel: string; fundingLabel: string; signals: string[] };
+const defaultSettings: SiteSettings = { brand: "XBT Esports", hero: "Make noise. Leave a mark.", intro: "An independent esports platform for sharp players, brave ideas, and the communities that move culture forward.", email: "hello@xbtesports.nyc", accent: "#125740", bracketsLabel: "BRACKETS", fundingLabel: "FUNDING", signals: [] };
 
 const visualSlots = [
   { label: "Signal / 01", className: "slot-wide", src: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" },
@@ -15,30 +17,32 @@ const visualSlots = [
 export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("brackets");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
+  useEffect(() => { const stored = window.localStorage.getItem("xbte-builder-settings"); if (stored) setSettings({ ...defaultSettings, ...JSON.parse(stored) }); }, []);
 
   return (
-    <main className="site-shell">
+    <main className="site-shell" style={{ "--green": settings.accent } as React.CSSProperties}>
       <div className="topo topo-one" aria-hidden="true" />
       <div className="topo topo-two" aria-hidden="true" />
 
       <header className="topbar">
         <a className="brand" href="#top" aria-label="XBTE Sports home">
           <span className="brand-mark">X</span>
-          <span>XBT <span className="brand-muted">Esports</span></span>
+          <span>{settings.brand}</span>
         </a>
         <div className="location">NYC / 2026 <span className="status-dot" /></div>
       </header>
 
       <nav className="tabs" aria-label="Primary navigation">
-        <button className={activeTab === "brackets" ? "tab active" : "tab"} onClick={() => setActiveTab("brackets")}>01 / BRACKETS</button>
-        <button className={activeTab === "funding" ? "tab active" : "tab"} onClick={() => setActiveTab("funding")}>02 / FUNDING</button>
+        <button className={activeTab === "brackets" ? "tab active" : "tab"} onClick={() => setActiveTab("brackets")}>01 / {settings.bracketsLabel}</button>
+        <button className={activeTab === "funding" ? "tab active" : "tab"} onClick={() => setActiveTab("funding")}>02 / {settings.fundingLabel}</button>
       </nav>
 
       <section id="top" className="hero-grid">
         <div className="hero-copy">
           <p className="eyebrow">XBT-001 / COMPETITIVE CULTURE LAB</p>
           <h1>{activeTab === "brackets" ? <>Make noise.<br /><em>Leave a mark.</em></> : <>Back the<br /><em>next signal.</em></>}</h1>
-          <p className="intro">XBTE is an independent esports platform for sharp players, brave ideas, and the communities that move culture forward.</p>
+          <p className="intro">{settings.intro}</p>
           <button className="primary-action" onClick={() => setDrawerOpen(true)}>ENTER THE FEED <span>↗</span></button>
         </div>
         <div className="hero-stat">
@@ -51,9 +55,9 @@ export default function Home() {
       <section className="signal-section" aria-label="Visual signal board">
         <div className="section-heading"><span>FIELD NOTES</span><span>01—05 / VISUAL SIGNALS</span></div>
         <div className="signal-grid">
-          {visualSlots.map((slot) => (
+          {visualSlots.map((slot, index) => (
             <figure className={`visual-slot ${slot.className ?? ""}`} key={slot.label}>
-              <img src={slot.src} alt="" loading="lazy" />
+              <img src={settings.signals?.[index] || slot.src} alt="" loading="lazy" />
               <div className="slot-overlay"><span>{slot.label}</span><span>↗</span></div>
             </figure>
           ))}
