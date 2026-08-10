@@ -33,7 +33,10 @@ jobs:
         run: npm ci
 
       - name: Build site
-        run: npm run build
+        run: npm run build -- --prerender-all
+      - name: Prepare static site
+        run: cp -R dist/client/. dist/srver/prerendered-routes/
+        
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -41,7 +44,7 @@ jobs:
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./dist/server/prerendered-routes
 
   deploy:
     environment:
