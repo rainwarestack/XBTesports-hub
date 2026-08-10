@@ -35,7 +35,10 @@ jobs:
       - name: Build site
         run: npm run build -- --prerender-all
       - name: Prepare static site
-        run: cp -R dist/client/. dist/srver/prerendered-routes/
+        run: |
+          mkdir -p dist/server/prerendered-routes
+          cp -R dist/client/. dist/server/prerendered-routes/
+          test -f dist/server/prerendered-routes/index.html
         
 
       - name: Configure Pages
