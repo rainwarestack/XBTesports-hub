@@ -24,7 +24,7 @@ export default function Home() {
       <header className="topbar">
         <a className="brand" href="#top" aria-label="XBTE Sports home">
           <span className="brand-mark">X</span>
-          <span>XBTE<span className="brand-muted">SPORTS</span></span>
+          <span>XBT <span className="brand-muted">Esports</span></span>
         </a>
         <div className="location">NYC / 2026 <span className="status-dot" /></div>
       </header>
