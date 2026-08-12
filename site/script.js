@@ -1,31 +1,15 @@
-const tabs = document.querySelectorAll(".tab");
-const headline = document.querySelector("#headline");
-const intro = document.querySelector("#intro");
-const statValue = document.querySelector("#stat-value");
-const statFoot = document.querySelector("#stat-foot");
-const drawer = document.querySelector("#brand-drawer");
-const drawerToggle = document.querySelector("#drawer-toggle");
-
-const tabContent = {
-  brackets: { headline: "Make noise.<br><em>Leave a mark.</em>", intro: "XBT Esports is an independent esports platform for sharp players, brave ideas, and the communities that move culture forward.", stat: "08", foot: "OPEN BRACKET SIGNALS" },
-  funding: { headline: "Back the<br><em>next signal.</em>", intro: "Invest in the players, organizers, and culture-builders shaping the next chapter of competitive gaming.", stat: "$250K", foot: "COMMUNITY CAPITAL TARGET" }
-};
-
-tabs.forEach((tab) => tab.addEventListener("click", () => {
-  const content = tabContent[tab.dataset.tab];
-  tabs.forEach((item) => item.classList.toggle("active", item === tab));
-  headline.innerHTML = content.headline;
-  intro.textContent = content.intro;
-  statValue.textContent = content.stat;
-  statFoot.textContent = content.foot;
-}));
-
-function toggleDrawer() {
-  const open = drawer.classList.toggle("open");
-  drawerToggle.setAttribute("aria-expanded", open);
-  drawer.setAttribute("aria-hidden", !open);
-  drawerToggle.firstChild.textContent = open ? "CLOSE " : "ABOUT XBT ";
-}
-
-drawerToggle.addEventListener("click", toggleDrawer);
-document.querySelector("#open-drawer").addEventListener("click", toggleDrawer);
+// Replace these URLs with your real Battlefy tournament and Discord invite.
+const CONFIG={battlefyUrl:'https://battlefy.com/',discordUrl:'https://discord.com/'};
+const infoItems=[
+  {title:'Calendar Schedule',desc:'Match windows, check-in times, rounds, and the next live signals. Keep this card updated as the season moves.',image:'https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif'},
+  {title:'About and Rules',desc:'The quick read on eligibility, match conduct, scoring, disputes, and the standard every competitor agrees to.',image:'https://media.giphy.com/media/3o7TKsQ8UQK0H6pM0E/giphy.gif'},
+  {title:'Stream Info',desc:'Watch the action live. Drop YouTube and Twitch logo URLs into the icon slots in this object when you are ready.',image:'https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif',icon:'https://cdn.simpleicons.org/youtube/FFFFFF'},
+  {title:'How to Register',desc:'Join the Discord, grab the role, submit your details, and watch for the confirmation signal from the team.',image:'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif'}
+];
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+function clickSound(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=520;g.gain.setValueAtTime(.035,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.12)}catch(e){}}
+function renderCards(){ $('#info-grid').innerHTML=infoItems.map((x,i)=>`<article class="info-card" data-index="${i}"><img class="info-thumb" src="${x.image}" alt=""><img class="info-icon" src="${x.icon||x.image}" alt=""><h3>${x.title}</h3><p>${x.desc}</p><span class="card-arrow">↗</span></article>`).join('');$$('.info-card').forEach(c=>c.addEventListener('click',()=>{clickSound();const x=infoItems[c.dataset.index];$('#modal-content').innerHTML=`<img src="${x.image}" alt=""><p class="kicker">CURRENT SEASON / INFO CARD</p><h2>${x.title}</h2><p>${x.desc}</p>`;$('#info-modal').classList.add('open');$('#info-modal').setAttribute('aria-hidden','false')}))}
+renderCards();$('#battlefy-frame').src=CONFIG.battlefyUrl;$('#discord-link').href=CONFIG.discordUrl;
+$$('.main-tab').forEach(t=>t.addEventListener('click',()=>{clickSound();$$('.main-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');$$('.panel').forEach(p=>p.classList.remove('active-panel'));$('#'+t.dataset.panel).classList.add('active-panel')}));
+function toggleDrawer(force){const open=force??!$('#register-drawer').classList.contains('open');clickSound();$('#register-drawer').classList.toggle('open',open);$('#register-toggle').setAttribute('aria-expanded',open);$('#register-drawer').setAttribute('aria-hidden',!open)}$('#register-toggle').onclick=()=>toggleDrawer();$('#drawer-close').onclick=()=>toggleDrawer(false);$('#modal-close').onclick=()=>{$('#info-modal').classList.remove('open');$('#info-modal').setAttribute('aria-hidden','true')};$('#info-modal').onclick=e=>{if(e.target.id==='info-modal')$('#modal-close').click()};
+if(matchMedia('(pointer:fine)').matches){const d=$('.cursor-dot'),r=$('.cursor-ring');addEventListener('mousemove',e=>{d.style.left=e.clientX+'px';d.style.top=e.clientY+'px';r.style.left=e.clientX+'px';r.style.top=e.clientY+'px'});$$('button,a,.info-card').forEach(el=>{el.addEventListener('mouseenter',()=>{r.style.width='46px';r.style.height='46px'});el.addEventListener('mouseleave',()=>{r.style.width='28px';r.style.height='28px'})})}

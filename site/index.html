@@ -1,53 +1,40 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="XBT Esports — competitive culture lab." />
-    <title>XBT Esports — Competitive Culture Lab</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <main class="site-shell">
-      <div class="topo topo-one" aria-hidden="true"></div>
-      <div class="topo topo-two" aria-hidden="true"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="XBTesports™ Hub — everything participants need in one place." />
+  <title>XBTesports™ Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div><div class="cursor-dot" aria-hidden="true"></div><div class="cursor-ring" aria-hidden="true"></div>
+  <main class="hub">
+    <header class="masthead">
+      <div class="banner-media"><img src="https://media.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif" alt="" /></div>
+      <div class="masthead-content"><p class="kicker">XBT / PARTICIPANT OPERATING SYSTEM / 2026</p><h1 class="rainbow-text">XBTesports<span>™</span> Hub</h1><p class="signal-line"><i></i> SYSTEM ONLINE <strong>●</strong> ALL SIGNALS LIVE</p></div>
+    </header>
 
-      <header class="topbar">
-        <a class="brand" href="#top" aria-label="XBT Esports home"><span class="brand-mark">X</span><span>XBT <span class="brand-muted">Esports</span></span></a>
-        <div class="location">NYC / 2026 <span class="status-dot"></span></div>
-      </header>
+    <nav class="main-tabs" aria-label="Main sections">
+      <button class="main-tab active" data-panel="season-panel"><span>01</span> CURRENT SEASON <b>INFO</b></button>
+      <button class="main-tab" data-panel="battlefy-panel"><span>02</span> BATTLEFY INFO <b>EMBED ZONE</b></button>
+    </nav>
 
-      <nav class="tabs" aria-label="Primary navigation">
-        <button class="tab active" data-tab="brackets">01 / BRACKETS</button>
-        <button class="tab" data-tab="funding">02 / FUNDING</button>
-      </nav>
+    <section id="season-panel" class="panel active-panel">
+      <div class="section-intro"><p class="kicker">CURRENT SEASON / TITLE SIGNAL</p><h2>Call of Duty:<br /><em>Black Ops 7</em></h2><img class="title-gif" src="https://media.giphy.com/media/3o7qE1YN7aBOFPRw8E/giphy.gif" alt="Call of Duty season art" /></div>
+      <div class="info-grid" id="info-grid"></div>
+    </section>
 
-      <section id="top" class="hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">XBT-001 / COMPETITIVE CULTURE LAB</p>
-          <h1 id="headline">Make noise.<br /><em>Leave a mark.</em></h1>
-          <p class="intro" id="intro">XBT Esports is an independent esports platform for sharp players, brave ideas, and the communities that move culture forward.</p>
-          <button class="primary-action" id="open-drawer">ENTER THE FEED <span>↗</span></button>
-        </div>
-        <div class="hero-stat"><span class="stat-label">LIVE INDEX</span><strong id="stat-value">08</strong><span class="stat-foot" id="stat-foot">OPEN BRACKET SIGNALS</span></div>
-      </section>
+    <section id="battlefy-panel" class="panel"><div class="section-intro"><p class="kicker">BATTLEFY / LIVE COMPETITION DATA</p><h2>Play the<br /><em>bracket.</em></h2></div><div class="embed-wrap"><div class="embed-bar"><span>LIVE BATTLEFY FEED</span><span class="live-pill">● LIVE</span></div><iframe id="battlefy-frame" title="Battlefy tournament information" src="https://battlefy.com/" loading="lazy"></iframe></div></section>
 
-      <section class="signal-section" aria-label="Visual signal board">
-        <div class="section-heading"><span>FIELD NOTES</span><span>01—05 / VISUAL SIGNALS</span></div>
-        <div class="signal-grid">
-          <figure class="visual-slot slot-wide"><img src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="" /><div class="slot-overlay"><span>Signal / 01</span><span>↗</span></div></figure>
-          <figure class="visual-slot"><img src="https://media.giphy.com/media/3o7qE1YN7aBOFPRw8E/giphy.gif" alt="" /><div class="slot-overlay"><span>Signal / 02</span><span>↗</span></div></figure>
-          <figure class="visual-slot"><img src="https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif" alt="" /><div class="slot-overlay"><span>Signal / 03</span><span>↗</span></div></figure>
-          <figure class="visual-slot"><img src="https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif" alt="" /><div class="slot-overlay"><span>Signal / 04</span><span>↗</span></div></figure>
-          <figure class="visual-slot slot-tall"><img src="https://media.giphy.com/media/3o7TKsQ8UQK0H6pM0E/giphy.gif" alt="" /><div class="slot-overlay"><span>Signal / 05</span><span>↗</span></div></figure>
-          <div class="visual-slot embed-slot"><span class="plus">＋</span><span>DROP YOUR<br />NEXT SIGNAL</span><small>PASTE A VISUAL URL</small></div>
-        </div>
-      </section>
-
-      <footer class="footer"><span>XBT ESPORTS / BROOKLYN, NY</span><span>BUILT FOR THE NEXT ROUND <b>↗</b></span></footer>
-      <button class="pull-tag" id="drawer-toggle" aria-expanded="false" aria-controls="brand-drawer">ABOUT XBT <span>↗</span></button>
-      <aside id="brand-drawer" class="drawer" aria-hidden="true"><p class="eyebrow">THE SHORT VERSION</p><h2>Built by the<br /><em>players.</em></h2><p>XBT Esports connects competitive play, creative production, and access to funding under one unmistakable signal. We are here for the people making the scene harder to ignore.</p><a href="mailto:hello@xbtesports.nyc">hello@xbtesports.nyc ↗</a></aside>
-    </main>
-    <script src="script.js"></script>
-  </body>
+    <button class="register-tab" id="register-toggle" aria-expanded="false" aria-controls="register-drawer"><img src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" alt="" /> REGISTER HERE! <span>↗</span></button>
+    <aside class="register-drawer" id="register-drawer" aria-hidden="true"><button class="drawer-close" id="drawer-close" aria-label="Close registration panel">×</button><p class="kicker">DISCORD / ACCESS POINT</p><h2>Join the<br /><em>server.</em></h2><p>Registration, announcements, match callouts, and live support happen inside the XBTesports™ Discord.</p><a class="discord-link" id="discord-link" href="https://discord.com/" target="_blank" rel="noreferrer">OPEN DISCORD ↗</a></aside>
+    <footer class="footer"><div class="footer-banner"><img src="https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif" alt="" /></div><p class="rainbow-text">XBTesports™ 2026 Hosted by @rainsoranked</p></footer>
+  </main>
+  <div class="modal" id="info-modal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="modal-close" aria-label="Close info">×</button><div id="modal-content"></div></div></div>
+  <script src="script.js"></script>
+</body>
 </html>

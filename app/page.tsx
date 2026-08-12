@@ -1,79 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-type Tab = "brackets" | "funding";
-type SiteSettings = { brand: string; hero: string; intro: string; email: string; accent: string; bracketsLabel: string; fundingLabel: string; signals: string[] };
-const defaultSettings: SiteSettings = { brand: "XBT Esports", hero: "Make noise. Leave a mark.", intro: "An independent esports platform for sharp players, brave ideas, and the communities that move culture forward.", email: "hello@xbtesports.nyc", accent: "#125740", bracketsLabel: "BRACKETS", fundingLabel: "FUNDING", signals: [] };
+type Panel = "battlefy" | "funding";
 
-const visualSlots = [
-  { label: "Signal / 01", className: "slot-wide", src: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" },
-  { label: "Signal / 02", src: "https://media.giphy.com/media/3o7qE1YN7aBOFPRw8E/giphy.gif" },
-  { label: "Signal / 03", src: "https://media.giphy.com/media/xT9IgzoKnwFNmISR8I/giphy.gif" },
-  { label: "Signal / 04", src: "https://media.giphy.com/media/26n6WywJyh39n1pBu/giphy.gif" },
-  { label: "Signal / 05", className: "slot-tall", src: "https://media.giphy.com/media/3o7TKsQ8UQK0H6pM0E/giphy.gif" },
+const embedSlots = [
+  { label: "AUTHOR GIF", hint: "Team / organizer identity", wide: true },
+  { label: "THUMBNAIL GIF", hint: "Event or campaign visual" },
+  { label: "FOOTER IMAGE", hint: "Brand signature" },
 ];
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>("brackets");
+  const [panel, setPanel] = useState<Panel>("battlefy");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [settings, setSettings] = useState<SiteSettings>(defaultSettings);
-  useEffect(() => { const stored = window.localStorage.getItem("xbte-builder-settings"); if (stored) setSettings({ ...defaultSettings, ...JSON.parse(stored) }); }, []);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   return (
-    <main className="site-shell" style={{ "--green": settings.accent } as React.CSSProperties}>
+    <main className="site-shell">
       <div className="topo topo-one" aria-hidden="true" />
       <div className="topo topo-two" aria-hidden="true" />
-
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="XBTE Sports home">
-          <span className="brand-mark">X</span>
-          <span>{settings.brand}</span>
-        </a>
-        <div className="location">NYC / 2026 <span className="status-dot" /></div>
+        <a className="brand" href="#top"><span className="brand-mark">X</span><span>XBTesports<span className="trade">™</span></span></a>
+        <div className="location">NORTH AMERICA / ONLINE <span className="status-dot" /></div>
       </header>
-
-      <nav className="tabs" aria-label="Primary navigation">
-        <button className={activeTab === "brackets" ? "tab active" : "tab"} onClick={() => setActiveTab("brackets")}>01 / {settings.bracketsLabel}</button>
-        <button className={activeTab === "funding" ? "tab active" : "tab"} onClick={() => setActiveTab("funding")}>02 / {settings.fundingLabel}</button>
-      </nav>
 
       <section id="top" className="hero-grid">
         <div className="hero-copy">
           <p className="eyebrow">XBT-001 / COMPETITIVE CULTURE LAB</p>
-          <h1>{activeTab === "brackets" ? <>Make noise.<br /><em>Leave a mark.</em></> : <>Back the<br /><em>next signal.</em></>}</h1>
-          <p className="intro">{settings.intro}</p>
-          <button className="primary-action" onClick={() => setDrawerOpen(true)}>ENTER THE FEED <span>↗</span></button>
+          <h1>Play the<br /><em>long game.</em></h1>
+          <p className="intro">Free-to-enter esports events, built for players and powered by the community around them.</p>
+          <button className="primary-action" onClick={() => setDrawerOpen(true)}>EXPLORE XBT <span>↗</span></button>
         </div>
-        <div className="hero-stat">
-          <span className="stat-label">LIVE INDEX</span>
-          <strong>{activeTab === "brackets" ? "08" : "$250K"}</strong>
-          <span className="stat-foot">{activeTab === "brackets" ? "OPEN BRACKET SIGNALS" : "COMMUNITY CAPITAL TARGET"}</span>
-        </div>
+        <div className="hero-stat"><span className="stat-label">NEXT DROP</span><strong>08</strong><span className="stat-foot">OPEN TOPOGRAPHIC SIGNALS<br />SEASON / 2026</span></div>
       </section>
 
-      <section className="signal-section" aria-label="Visual signal board">
-        <div className="section-heading"><span>FIELD NOTES</span><span>01—05 / VISUAL SIGNALS</span></div>
-        <div className="signal-grid">
-          {visualSlots.map((slot, index) => (
-            <figure className={`visual-slot ${slot.className ?? ""}`} key={slot.label}>
-              <img src={settings.signals?.[index] || slot.src} alt="" loading="lazy" />
-              <div className="slot-overlay"><span>{slot.label}</span><span>↗</span></div>
-            </figure>
-          ))}
-          <div className="visual-slot embed-slot"><span className="plus">＋</span><span>DROP YOUR<br />NEXT SIGNAL</span><small>PASTE A VISUAL URL</small></div>
-        </div>
+      <nav className="tabs" aria-label="XBTesports sections">
+        <button className={panel === "battlefy" ? "tab active" : "tab"} onClick={() => setPanel("battlefy")}>01 / BATTLEFY</button>
+        <button className={panel === "funding" ? "tab active" : "tab"} onClick={() => setPanel("funding")}>02 / FUNDING</button>
+      </nav>
+
+      <section className="command-panel" aria-live="polite">
+        {panel === "battlefy" ? <>
+          <div className="panel-copy"><p className="eyebrow">PLAYER ACCESS / 01</p><h2>Find your<br /><em>next match.</em></h2><p>Check brackets, schedules, standings, and event details in one place. Battlefy embeds can live right here.</p><a className="text-link" href="https://battlefy.com" target="_blank" rel="noreferrer">OPEN BATTLEFY ↗</a></div>
+          <div className="battlefy-frame"><div className="frame-top"><span>LIVE EVENT FEED</span><span className="frame-dot">● CONNECTED</span></div><div className="frame-placeholder"><span className="frame-cross">+</span><strong>BATTLEFY<br />IFRAME SLOT</strong><small>PASTE YOUR EMBED URL IN CODEPEN</small></div></div>
+        </> : <>
+          <div className="panel-copy"><p className="eyebrow">COMMUNITY CAPITAL / 02</p><h2>Keep the<br /><em>signal live.</em></h2><p>Donate, sponsor an event, or place your brand in front of the players shaping what comes next.</p><button className="text-link button-link" onClick={() => setSupportOpen(!supportOpen)}>SEE WAYS TO HELP {supportOpen ? "↘" : "↗"}</button></div>
+          <div className="funding-grid"><div className="fund-card"><span>01 / DONATE</span><strong>Any amount<br />moves us forward.</strong><button onClick={() => setSupportOpen(true)}>SUPPORT THE ORG ↗</button></div><div className="fund-card silver"><span>02 / PARTNER</span><strong>Sponsor a<br />free event.</strong><a href="mailto:partners@xbtesports.com">START A CONVERSATION ↗</a></div></div>
+        </>}
       </section>
 
-      <footer className="footer"><span>XBTE / BROOKLYN, NY</span><span>BUILT FOR THE NEXT ROUND <b>↗</b></span></footer>
+      <section className="embed-section"><div className="section-heading"><span>DISCORD-STYLE EMBED SLOTS</span><span>01—03 / DROP ZONES</span></div><div className="embed-grid">{embedSlots.map((slot, i) => <div className={`embed-slot ${slot.wide ? "wide" : ""}`} key={slot.label}><div className="slot-number">0{i + 1}</div><div><strong>{slot.label}</strong><small>{slot.hint}</small></div><span className="slot-plus">+</span></div>)}</div></section>
+      <footer className="footer"><span>XBTesports™ / FREE EVENTS FOR THE CULTURE</span><span>BUILT FOR THE NEXT ROUND <b>↗</b></span></footer>
 
-      <button className={`pull-tag ${drawerOpen ? "open" : ""}`} onClick={() => setDrawerOpen(!drawerOpen)} aria-expanded={drawerOpen} aria-controls="brand-drawer">{drawerOpen ? "CLOSE" : "ABOUT XBTE"}<span>↗</span></button>
-      <aside id="brand-drawer" className={`drawer ${drawerOpen ? "open" : ""}`} aria-hidden={!drawerOpen}>
-        <p className="eyebrow">THE SHORT VERSION</p>
-        <h2>Built by the<br /><em>players.</em></h2>
-        <p>XBTE connects competitive play, creative production, and access to funding under one unmistakable signal. We are here for the people making the scene harder to ignore.</p>
-        <a href="mailto:hello@xbtesports.nyc">hello@xbtesports.nyc ↗</a>
-      </aside>
+      <button className={`pull-tag ${drawerOpen ? "open" : ""}`} onClick={() => setDrawerOpen(!drawerOpen)} aria-expanded={drawerOpen}>{drawerOpen ? "CLOSE" : "ABOUT XBT"}<span>↗</span></button>
+      <aside className={`drawer ${drawerOpen ? "open" : ""}`} aria-hidden={!drawerOpen}><p className="eyebrow">THE SHORT VERSION</p><h2>Built for<br /><em>everybody.</em></h2><p>XBTesports™ is an independent esports org making competitive play more accessible. Free events, clear pathways, and a community-funded future.</p><div className="drawer-lines"><span>EST. 2026</span><span>PLAYER-FIRST / COMMUNITY-POWERED</span><span>ONLINE / NORTH AMERICA</span></div><a href="mailto:hello@xbtesports.com">HELLO@XBTESPORTS.COM ↗</a></aside>
+      {supportOpen && panel === "funding" && <div className="support-toast"><strong>Thanks for backing the next round.</strong><span>Connect a donation link, sponsor deck, or payment flow here.</span><button onClick={() => setSupportOpen(false)}>×</button></div>}
     </main>
   );
 }
