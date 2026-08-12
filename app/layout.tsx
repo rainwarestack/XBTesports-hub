@@ -6,8 +6,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "XBTesports™ — Play the long game",
-  description: "Free-to-enter esports events, built for players and powered by the community around them.",
+  title: "XBTesports™ Hub",
+  description: "Current season info, Battlefy embeds, registration, and live esports updates.",
   icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
 };
 
