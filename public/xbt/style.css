@@ -8,3 +8,10 @@ h1{font-size:clamp(2.7rem,8vw,8rem);text-transform:none;white-space:nowrap}
 .battlefy-window:first-child iframe{width:186px;height:60px}
 @media(max-width:520px){h1{font-size:clamp(2.25rem,13vw,4.5rem)}}
 .footer-message{font-family:var(--mono);font-size:clamp(11px,2vw,18px);letter-spacing:.02em;white-space:normal}
+.join-window{width:min(100%,230px);min-height:128px;justify-self:start;overflow:hidden}
+.join-window iframe{flex:0 0 60px;max-width:186px}
+.join-fallback{display:block;margin:8px auto 10px;padding:7px 9px;background:var(--battle-red);color:var(--white);font:8px var(--mono);letter-spacing:.06em;text-decoration:none}
+.register-tab{width:58px;height:246px;min-height:246px;overflow:hidden;display:flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 0;gap:10px}
+.register-tab img{flex:0 0 25px;margin:0}
+.register-tab span{margin:0}
+@media(max-width:520px){.join-window{justify-self:center}.register-tab{width:54px;height:226px;min-height:226px;font-size:9px}}
