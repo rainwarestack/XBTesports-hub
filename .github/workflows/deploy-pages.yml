@@ -23,6 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Include live scoreboard pages
+        run: |
+          cp -R public/admin site/admin
+          cp -R public/overlay site/overlay
+          cp public/scoreboard-data.js site/scoreboard-data.js
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./site
