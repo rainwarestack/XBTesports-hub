@@ -1,0 +1,10 @@
+name = "xbtesports-scoreboard-api"
+main = "scoreboard-api.ts"
+compatibility_date = "2026-08-20"
+
+[[kv_namespaces]]
+binding = "SCOREBOARD"
+id = "d93c40eea95f4d6688f0ba44c379b055"
+
+[vars]
+SCOREBOARD_KEY = "live-scoreboard"

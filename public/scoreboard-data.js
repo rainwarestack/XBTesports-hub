@@ -13,6 +13,11 @@
       { id: 'p8', position: 8, gamertag: 'dark_fox_00', kd: '0.86', visible: false }
     ]
   };
+  const API_URL = window.XBT_SCOREBOARD_API || '';
   const channel = 'BroadcastChannel' in window ? new BroadcastChannel(KEY) : null;
-  window.XBTScoreboard = { KEY, initial, read() { try { return { ...initial, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return initial; } }, save(data) { localStorage.setItem(KEY, JSON.stringify(data)); channel?.postMessage(data); window.dispatchEvent(new CustomEvent('xbte-scoreboard', { detail: data })); } };
+  function localRead() { try { return { ...initial, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { return initial; } }
+  window.XBTScoreboard = { KEY, initial, API_URL, read: localRead,
+    async fetch() { if (!API_URL) return localRead(); try { const response = await fetch(API_URL + '/scoreboard', { cache: 'no-store' }); if (!response.ok) throw new Error('scoreboard unavailable'); const data = await response.json(); localStorage.setItem(KEY, JSON.stringify(data)); return data; } catch { return localRead(); } },
+    async save(data) { localStorage.setItem(KEY, JSON.stringify(data)); channel?.postMessage(data); window.dispatchEvent(new CustomEvent('xbte-scoreboard', { detail: data })); if (API_URL) { await fetch(API_URL + '/scoreboard', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) }); } }
+  };
 })();
