@@ -30,8 +30,7 @@ jobs:
           cp -R public/activetournament site/activetournament
           cp -R public/funding site/funding
           cp -R public/contact site/contact
-          cp public/xbt/index.html site/xbt/index.html
-          cp public/xbt/info-links.css site/xbt/info-links.css
+          cp -R public/xbt/* site/
           cp public/scoreboard-data.js site/scoreboard-data.js
       - uses: actions/upload-pages-artifact@v3
         with:
