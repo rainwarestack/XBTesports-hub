@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XBTesports Scorepad</title>
+  <link rel="stylesheet" href="scorepad.css?v=1">
+</head>
+<body>
+  <main class="scorepad">
+    <header class="scorepad__header">
+      <a class="brand" href="../">XBT<span>esports™</span></a>
+      <span class="system-status"><i></i> Cloud Sync Ready</span>
+      <a class="control-link" href="../">Full Admin</a>
+    </header>
+
+    <section class="scorepad__intro">
+      <p class="eyebrow">Final Result Entry // Fixed Roster</p>
+      <h1>Final<br><em>Scorepad.</em></h1>
+      <p id="event-label" class="event-label"></p>
+    </section>
+
+    <section class="bulk-entry" aria-labelledby="bulk-title">
+      <div>
+        <p id="bulk-title">Paste Elimination Totals</p>
+        <small>Use the fixed player order below. Commas, spaces, and new lines all work.</small>
+      </div>
+      <div class="bulk-entry__controls">
+        <input id="bulk-scores" inputmode="numeric" autocomplete="off" placeholder="12, 9, 8, 7...">
+        <button id="apply-bulk" type="button">Apply</button>
+      </div>
+    </section>
+
+    <section class="roster-panel">
+      <div class="roster-panel__top">
+        <div><p class="eyebrow">Match Totals</p><h2>Enter every final elimination count.</h2></div>
+        <span id="roster-count" class="roster-count"></span>
+      </div>
+      <div id="score-rows" class="score-rows"></div>
+    </section>
+
+    <footer class="scorepad__actions">
+      <button id="clear-scores" class="button button--quiet" type="button">Clear Entry</button>
+      <span id="sync-message" class="sync-message" aria-live="polite">Scores will not change on stream until published.</span>
+      <button id="publish-scores" class="button button--primary" type="button">Publish Final Scores</button>
+    </footer>
+  </main>
+  <script>window.XBT_SCOREBOARD_API='https://xbtesports-scoreboard-api.smithrock87.workers.dev';</script>
+  <script src="../../scoreboard-data.js?v=3"></script>
+  <script src="scorepad.js?v=1"></script>
+</body>
+</html>
