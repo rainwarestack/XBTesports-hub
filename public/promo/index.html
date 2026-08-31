@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XBTesports Stream Promo</title>
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+  <main class="promo" aria-label="XBTesports promotional rotation">
+    <div class="environment" aria-hidden="true">
+      <div class="environment__grid"></div>
+      <div class="environment__scan"></div>
+      <div class="environment__noise"></div>
+      <span class="environment__corner environment__corner--tl"></span>
+      <span class="environment__corner environment__corner--tr"></span>
+      <span class="environment__corner environment__corner--bl"></span>
+      <span class="environment__corner environment__corner--br"></span>
+    </div>
+
+    <header class="hud hud--top">
+      <div class="brand-lockup">
+        <span class="brand-lockup__mark">X</span>
+        <span class="brand-lockup__name" data-brand></span>
+      </div>
+      <div class="hud__readout"><span class="status-dot"></span> Transmission Active</div>
+      <div class="hud__index">Node // 01</div>
+    </header>
+
+    <section class="scene scene--intro" data-scene="intro">
+      <p class="eyebrow">System // XBT</p>
+      <div class="terminal-lines">
+        <p>Accessing XBT network<span class="terminal-lines__dots">...</span></p>
+        <p>Establishing connection<span class="terminal-lines__dots">...</span></p>
+        <p>Player network online</p>
+      </div>
+      <div class="loading-track"><span></span></div>
+      <div class="intro-lockup">
+        <span class="intro-lockup__mark">X</span>
+        <strong data-brand></strong>
+      </div>
+      <p class="intro-tagline" data-tagline></p>
+    </section>
+
+    <section class="scene scene--brand" data-scene="brand">
+      <p class="eyebrow">Open Competition // Player Network</p>
+      <div class="brand-hero"><span data-brand></span></div>
+      <div class="kinetic-stack" aria-live="polite">
+        <strong>Open Competition</strong>
+        <strong data-event-game></strong>
+        <strong>Live Brackets</strong>
+        <strong>Weekly Events</strong>
+        <strong>Players Wanted</strong>
+      </div>
+      <div class="cta-lockup"><span data-cta></span><b data-website></b></div>
+    </section>
+
+    <section class="scene scene--how" data-scene="howToCompete">
+      <p class="eyebrow">Competition Protocol // 4 Steps</p>
+      <h1>How To Compete</h1>
+      <div class="steps">
+        <article class="step"><span>01</span><strong>Join XBT</strong></article>
+        <article class="step"><span>02</span><strong>Register</strong></article>
+        <article class="step"><span>03</span><strong>Check In</strong></article>
+        <article class="step"><span>04</span><strong>Compete</strong></article>
+      </div>
+      <div class="bottom-call"><span>Enter The Bracket</span><b data-website></b></div>
+    </section>
+
+    <section class="scene scene--event" data-scene="event">
+      <p class="eyebrow">Featured Event // Bracket Node</p>
+      <div class="event-heading">
+        <span data-event-game></span>
+        <h1 data-event-mode></h1>
+      </div>
+      <div class="event-grid">
+        <div><span>Format</span><strong data-event-format></strong></div>
+        <div><span>Entry</span><strong data-event-entry></strong></div>
+        <div><span>Platform</span><strong data-event-crossplay></strong></div>
+        <div><span>Next</span><strong data-event-date></strong></div>
+      </div>
+      <div class="event-footer"><span>Registration Open</span><b data-website></b></div>
+    </section>
+
+    <section class="scene scene--recruitment" data-scene="recruitment">
+      <p class="eyebrow">Recruitment Signal // Open</p>
+      <h1>Think You Can Win?</h1>
+      <div class="recruitment-list"><span>Open Brackets</span><span>Free Entry</span><span>Crossplay</span><span>Compete Live</span></div>
+      <div class="recruitment-close"><strong>Players Wanted</strong><span>Enter The Bracket // <b data-website></b></span></div>
+    </section>
+
+    <section class="scene scene--ident" data-scene="ident">
+      <p class="eyebrow">Broadcast Station Ident</p>
+      <p class="ident-leading">You're Watching</p>
+      <div class="ident-logo"><span>X</span><strong data-brand></strong></div>
+      <p class="ident-tagline" data-tagline></p>
+      <div class="lock-line"><span></span></div>
+    </section>
+
+    <section class="scene scene--sponsor" data-scene="sponsor" hidden>
+      <div class="media-slot"></div>
+      <div class="event-art"></div>
+      <div class="sponsor-slot"></div>
+    </section>
+
+    <footer class="hud hud--bottom">
+      <div><span class="status-dot"></span> Connected</div>
+      <div class="hud__meter"><span></span></div>
+      <div>Access Granted</div>
+    </footer>
+  </main>
+  <script src="script.js?v=1"></script>
+</body>
+</html>
