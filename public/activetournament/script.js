@@ -1,5 +1,5 @@
 'use strict';
-// CONFIGURATION. Public read-only prototype; no admin controls or persistence.
+// CONFIGURATION. Public read-only calendar; private event management lives in the editor.
 const CONFIG = { baseTimezone: 'America/New_York', maxCellEvents: 2 };
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 const $ = id => document.getElementById(id);
@@ -63,7 +63,22 @@ const sampleEvents = [
   ['championship','Championship Match','2026-09-27T00:00:00Z','2026-09-27T03:00:00Z','Special Event','Scheduled','The final match of this fictional September bracket.']
 ].map(([id,title,start,end,category,status,description]) => ({id,title,slug:id,start,end,category,status,description,timezone:CONFIG.baseTimezone,game:id === 'warzone' ? 'Call of Duty: Warzone' : 'Call of Duty: Black Ops 7',format:id === 'gunfight' ? '2 vs 2' : id === 'ranked' ? '4 vs 4' : 'Free For All',visibility:'public',featured:id === 'open-bracket',registrationUrl:null,tournamentUrl:null}));
 function loadPublicEvents() { return sampleEvents.filter(event => event.visibility === 'public').sort((a,b) => Date.parse(a.start)-Date.parse(b.start)); }
-const events = loadPublicEvents();
+const apiBase = typeof window !== 'undefined' ? (window.XBT_CALENDAR_API || '').replace(/\/$/,'') : '';
+let events = apiBase ? [] : loadPublicEvents();
+let scheduleState = apiBase ? 'loading' : 'sample';
+async function refreshPublicSchedule() {
+  if(!apiBase)return;
+  try {
+    if(!apiBase.startsWith('https://'))throw new Error('Invalid calendar endpoint.');
+    const response=await fetch(`${apiBase}/api/events`,{credentials:'omit',cache:'no-store',signal:AbortSignal.timeout(10000)});
+    if(!response.ok)throw new Error('Calendar unavailable.');
+    const data=await response.json();
+    if(!Array.isArray(data.events))throw new Error('Invalid schedule.');
+    events=data.events.filter(event=>event.visibility==='public'&&Number.isFinite(Date.parse(event.start))&&Number.isFinite(Date.parse(event.end))).sort((a,b)=>Date.parse(a.start)-Date.parse(b.start));
+    scheduleState='live';
+  } catch { events=[];scheduleState='error'; }
+  render();
+}
 
 // HOLIDAYS. US calendar dates, not midnight instants; never shift with timezone.
 // Actual holiday dates, not substitute observed weekdays. Generated for every year.
@@ -169,6 +184,9 @@ function renderAgenda() {
   $('calendar').append(agenda);renderSelectedDay();
 }
 function render() {
+  const badge=document.querySelector('.sample-label'),note=document.querySelector('.prototype-note');
+  if(badge)badge.textContent=({sample:'SAMPLE SCHEDULE · PHASE 1',loading:'LOADING SCHEDULE',live:'PUBLISHED SCHEDULE',error:'SCHEDULE UNAVAILABLE'})[scheduleState];
+  if(note)note.textContent=({sample:'Preview calendar. All tournaments are fictional examples; registration and tournament links are not live.',loading:'Loading the latest tournament schedule…',live:'Tournament times are displayed in your selected timezone.',error:'The schedule could not be loaded. Please refresh to try again. Holidays are still shown.'})[scheduleState];
   $('calendar').replaceChildren();
   const date=calendarState.currentDate;
   let title=dayLabel(date,{month:'long',year:'numeric'});
@@ -181,20 +199,26 @@ function render() {
   calendarState.view === 'month' ? renderMonth() : renderAgenda();
   const days=periodDays().filter(day=>calendarState.view !== 'month' || day.getUTCMonth() === date.getUTCMonth());
   const ids=new Set(days.flatMap(day=>eventsOn(dateKey(day)).map(event=>event.id)));
-  $('period-count').textContent=`${ids.size} SAMPLE EVENTS / ${calendarState.view.toUpperCase()}`;
+  $('period-count').textContent=`${ids.size} ${scheduleState === 'sample' ? 'SAMPLE ' : ''}EVENTS / ${calendarState.view.toUpperCase()}`;
 }
 
 // MODAL FUNCTIONS. Native dialog supplies focus containment and Escape support.
 let returnFocus=null;
 function openEvent(event) {
   returnFocus=document.activeElement;
-  $('modal-category').textContent=`${event.category.toUpperCase()} / SAMPLE`;
+  $('modal-category').textContent=`${event.category.toUpperCase()}${scheduleState === 'sample' ? ' / SAMPLE' : ''}`;
   $('modal-title').textContent=event.title;
   const details=el('dl');
   for(const [label,value] of [['START',displayInstant(event.start)],['END',displayInstant(event.end)],['TIMEZONE',calendarState.timezone],['GAME',event.game],['FORMAT',event.format],['STATUS',event.status]]) details.append(el('dt','',label),el('dd','',value));
   const actions=el('div','modal-actions');
-  for(const label of ['REGISTER ↗','VIEW TOURNAMENT ↗']) {const button=el('button','',label);button.disabled=true;actions.append(button);}
-  $('modal-body').replaceChildren(details,el('p','description',event.description),actions,el('p','modal-note','Fictional sample event. Registration and tournament links will be available when real events are added.'));
+    for(const [label,url] of [['REGISTER ↗',event.registrationUrl],['VIEW TOURNAMENT ↗',event.tournamentUrl]]) {
+    let safe=false;try{safe=new URL(url).protocol==='https:';}catch{/* Missing links remain disabled. */}
+    if(label==='REGISTER ↗'&&['Cancelled','Postponed','Completed','Registration Closed'].includes(event.status))safe=false;
+    const action=el(safe?'a':'button','event-action',label);
+    if(safe){action.href=url;action.target='_blank';action.rel='noopener noreferrer';}else action.disabled=true;
+    actions.append(action);
+  }
+  $('modal-body').replaceChildren(details,el('p','description',event.description),actions,el('p','modal-note',scheduleState === 'sample' ? 'Fictional sample event. Registration and tournament links will be available when real events are added.' : 'Links are provided by the tournament organizer. Unavailable actions are disabled.'));
   $('event-dialog').showModal();
 }
 $('close-modal').addEventListener('click',()=>$('event-dialog').close());
@@ -225,4 +249,4 @@ $('calendar').addEventListener('keydown',event=>{
   if(movement){event.preventDefault();selectDate(dateKey(addDays(parseDay(event.target.dataset.date),movement)));}
 });
 // INITIALIZATION
-$('timezone').value=preference;render();
+$('timezone').value=preference;render();refreshPublicSchedule();

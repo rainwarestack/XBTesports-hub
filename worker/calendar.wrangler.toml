@@ -1,0 +1,23 @@
+name = "xbtesports-calendar"
+main = "calendar-api.mjs"
+compatibility_date = "2026-09-12"
+workers_dev = true
+
+[assets]
+directory = "../calendar-admin"
+binding = "ASSETS"
+run_worker_first = true
+
+[vars]
+ADMIN_EMAIL = "smithrock87@gmail.com"
+# Set these to your Cloudflare Access application before the editor can sign in.
+ACCESS_TEAM_DOMAIN = ""
+ACCESS_AUD = ""
+
+# Add the CALENDAR_DB D1 binding after creating the database.
+
+[[d1_databases]]
+binding = "CALENDAR_DB"
+database_name = "xbtesports-calendar"
+database_id = "3c1e999c-31b1-44c6-80f9-84a6e7c5fa43"
+migrations_dir = "calendar-migrations"
