@@ -11,8 +11,8 @@ run_worker_first = true
 [vars]
 ADMIN_EMAIL = "smithrock87@gmail.com"
 # Set these to your Cloudflare Access application before the editor can sign in.
-ACCESS_TEAM_DOMAIN = ""
-ACCESS_AUD = ""
+ACCESS_TEAM_DOMAIN = "https://broad-mouse-8ba0.cloudflareaccess.com"
+ACCESS_AUD = "c87927c3748f7e3a7815e28cafdd0cc5df12fd0219a73f6eff4d7373a1539c50"
 
 # Add the CALENDAR_DB D1 binding after creating the database.
 

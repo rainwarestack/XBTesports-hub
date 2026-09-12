@@ -1,0 +1,9 @@
+name = "xbtesports-calendar-public"
+main = "calendar-public.mjs"
+compatibility_date = "2026-09-12"
+workers_dev = true
+
+[[d1_databases]]
+binding = "CALENDAR_DB"
+database_name = "xbtesports-calendar"
+database_id = "3c1e999c-31b1-44c6-80f9-84a6e7c5fa43"

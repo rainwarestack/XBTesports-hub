@@ -21,7 +21,10 @@ export async function requireOwner(request, env) {
   if (!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(env.ACCESS_TEAM_DOMAIN || '') || !env.ACCESS_AUD || !env.ADMIN_EMAIL) {
     throw failure('Administrator sign-in has not been connected yet.', 503);
   }
-  const token = request.headers.get('Cf-Access-Jwt-Assertion');
+  // Access may forward its HttpOnly cookie through the static-assets router.
+  // Both sources undergo the same complete signature and claim validation.
+  const token = request.headers.get('Cf-Access-Jwt-Assertion') ||
+    (request.headers.get('Cookie') || '').split(';').map(part => part.trim()).find(part => part.startsWith('CF_Authorization='))?.slice('CF_Authorization='.length);
   if (!token || token.length > 16384) throw failure('Sign in to manage the calendar.', 401);
   try {
     const parts = token.split('.');

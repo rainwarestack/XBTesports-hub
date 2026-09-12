@@ -1,48 +1,48 @@
 # XBT calendar editor — Phase 2
 
-## Deployed components
+## Active deployment
 
-- Editor: https://xbtesports-calendar.smithrock87.workers.dev/
-- Public read-only events: https://xbtesports-calendar.smithrock87.workers.dev/api/events
-- D1 database: xbtesports-calendar (binding CALENDAR_DB).
-- Sole administrator: smithrock87@gmail.com, checked in the server-verified Access JWT.
-- Production sign-in is **not configured yet**. Admin reads and writes fail closed until both ACCESS_TEAM_DOMAIN and ACCESS_AUD are set.
+- Private editor: https://xbtesports-calendar.smithrock87.workers.dev/
+- Public event feed: https://xbtesports-calendar-public.smithrock87.workers.dev/api/events
+- Database: xbtesports-calendar, binding CALENDAR_DB.
+- Owner: smithrock87@gmail.com.
+- Access application: XBT Calendar Editor.
+- Access team: https://broad-mouse-8ba0.cloudflareaccess.com
 
-The existing GitHub Pages website and scoreboard Worker remain separate. The editor uses HTML/CSS/vanilla JavaScript; the new calendar Worker provides authenticated event management and durable D1 storage.
+Cloudflare Access protects the calendar editor's production and preview URLs. Its Allow policy matches only the exact owner email. The login cookie is HttpOnly. The Worker independently verifies the signed Access token, its issuer, audience, expiry and owner email. The owner login was verified in the deployed editor on September 12, 2026.
 
-## Finish administrator sign-in
+The public feed is a separate Worker. It exposes only GET /api/events, queries published records only, and has no assets or administrative endpoints. No Access bypass policy is needed. The existing scoreboard Worker is unchanged.
 
-1. In Cloudflare Zero Trust, create or select your team. Record its HTTPS team domain, ending in `.cloudflareaccess.com`.
-2. Create a self-hosted Access application for `xbtesports-calendar.smithrock87.workers.dev`. Enable Workers.dev Access protection if prompted. Use Google sign-in or One-time PIN.
-3. Set its Allow policy to the **exact email** `smithrock87@gmail.com`. Do not allow everyone or all Gmail accounts. Set a session duration appropriate for administration (for example, 8 hours).
-4. Leave `/api/events` and `/api/status` public using separate, more-specific path applications with Bypass policies. These two endpoints contain no private data. Do not bypass `/api/admin/*`.
-5. Copy the application's audience (AUD) tag and team domain into `worker/calendar.wrangler.toml` as ACCESS_AUD and ACCESS_TEAM_DOMAIN. These identifiers are configuration, not login secrets.
-6. Deploy using `node node_modules/wrangler/bin/wrangler.js deploy --config worker/calendar.wrangler.toml`.
-7. Open the editor, sign in as the owner, create a private draft, reload and confirm it persists. Confirm the draft is absent from `/api/events`. Publish it and confirm it appears; unpublish it and confirm it disappears. An incognito visitor must not be able to list drafts or mutate events.
+## Editing
 
-JWT signatures, issuer, audience, expiry, and owner email are verified by the Worker. There is no local bypass, no shared password in JavaScript, and no hidden-control security assumption. Mutations also require same-origin JSON and an event revision to avoid overwriting newer changes.
+Open the editor and continue with Cloudflare sign-in. New events default to private drafts. Set Visibility to Published to display an event on the public calendar. Save a draft to keep it private. Every update/delete checks the event revision, preventing an older tab from overwriting newer changes.
 
-Cloudflare references:
+The event timezone controls the meaning of entered start/end times. Daylight-saving gaps are rejected; repeated times offer first/second occurrence selection. Visitors see the corresponding time in their selected timezone.
+
+The editor supports create/edit/delete, draft/publication status, source timezone, category, tournament status, description, game, format, prize, links and a featured flag. The featured flag is stored for future presentation; it does not yet pin entries. Recurring events, holiday customization and dragging/resizing are future increments.
+
+## Public website
+
+public/activetournament/config.js points to the public feed. Publish the GitHub Pages repository after changing this file. The calendar fetches saved events on page load; reload an already-open calendar after publishing an event. Empty schedules remain empty, and API failures display an error rather than sample events. Only an intentionally blank API setting returns to the Phase 1 sample preview.
+
+## Deployment
+
+- Editor: node node_modules/wrangler/bin/wrangler.js deploy --config worker/calendar.wrangler.toml
+- Public feed: node node_modules/wrangler/bin/wrangler.js deploy --config worker/calendar-public.wrangler.toml
+- Database migrations: node node_modules/wrangler/bin/wrangler.js d1 migrations apply xbtesports-calendar --remote --config worker/calendar.wrangler.toml
+
+Keep the Access identifiers in the editor configuration aligned with the saved application. Do not remove the Access protection or add a development login bypass. Application audience and team domain are non-secret configuration; authentication tokens must never be committed.
+
+## Verification
+
+- node tests/calendar.test.mjs
+- node --test tests/calendar-api.test.mjs tests/calendar-public.test.mjs
+- node --check calendar-admin/script.js
+
+The integration tests use signed RSA tokens and real SQLite storage behind a D1 adapter. They cover signature/claim rejection, verified Access cookies, private/public visibility, persistence, stale writes, unsafe links, invalid dates and DST transitions. Public-reader tests confirm drafts are excluded and mutation/admin paths are unavailable.
+
+Deployment checks confirmed an anonymous request to the editor redirects to Cloudflare Access. The owner then signed in successfully and the editor enabled Save. No real tournaments or production test events were created during setup.
+
+References:
 - https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/
-- https://developers.cloudflare.com/workers/static-assets/binding/
-
-## Connect the public calendar
-
-`public/activetournament/config.js` deliberately leaves XBT_CALENDAR_API blank while sign-in setup is pending, preserving the Phase 1 sample preview. When the owner can manage real events, set it to `https://xbtesports-calendar.smithrock87.workers.dev` and publish the existing GitHub Pages repository. Empty live schedules stay empty; network failures show an unavailable message rather than fictional tournaments. Reloading the calendar fetches the latest saved events.
-
-The modal enables configured HTTPS registration/tournament links. Drafts are filtered by the server, not merely hidden by the UI. Registration actions are disabled for cancelled, postponed, completed, or registration-closed events.
-
-## Local development / checks
-
-- `node tests/calendar.test.mjs`
-- `node --test tests/calendar-api.test.mjs` (Node 24, built-in SQLite; no new dependencies).
-- `node --check calendar-admin/script.js`
-- `node --check worker/calendar-api.mjs`
-
-API tests use genuine signed RSA tokens and a real SQLite database behind a D1-compatible adapter. They cover rejected credentials, private/public visibility, persistence, stale updates/deletes, malicious links, input validation, and spring/fall daylight-saving transitions. They do not claim an end-to-end production login test before Access is connected.
-
-A static local preview can display the editor form but cannot save events or bypass login. Do not add production test credentials or deploy a development bypass.
-
-## Next additions
-
-Recurring rules, drag/reschedule interactions, registration windows, holiday editing and rich customization are future increments. Phase 2 currently supports create/edit/delete, private drafts/publication, event timezone, DST ambiguity selection, status/category, description, game/format, prize, links, and featured flag. Featured is saved for future presentation; it does not yet pin calendar entries.
+- https://developers.cloudflare.com/workers/configuration/cloudflare-access/

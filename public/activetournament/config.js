@@ -1,3 +1,2 @@
-// Set to the deployed calendar Worker origin after secure administration is ready.
-// Leave blank to retain the clearly labeled Phase 1 sample schedule.
-window.XBT_CALENDAR_API = '';
+// Public, read-only event feed. The editor is protected on a separate hostname.
+window.XBT_CALENDAR_API = 'https://xbtesports-calendar-public.smithrock87.workers.dev';
