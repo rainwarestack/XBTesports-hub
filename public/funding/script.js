@@ -12,17 +12,17 @@ const partnerSlots = [
     description: ['Provide products or digital rewards directly to XBTesports™ tournament champions.', 'Contribute an approved product, digital item, gift code, membership, subscription, or other prize. Digital prizes are preferred; physical products must be discussed through email before the event.', 'XBTesports™ promotes your business as the prize provider when announcing and presenting the reward.'],
     requirementsTitle: 'ELIGIBLE PRIZE EXAMPLES', requirements: ['Digital gift cards', 'Game codes', 'Memberships or subscriptions', 'Software licenses', 'Brand merchandise', 'Gaming accessories', 'Controllers and peripherals'] },
   { id: 'broadcast', title: 'Broadcast Partner', price: 250, duration: '1 month', status: 'available', currentPartner: null,
-    description: ['Your logo will be displayed throughout XBTesports™ livestreams, including Starting Soon, Live Match, Be Right Back, Just Chatting, and Ending scenes.', 'A consistent brand presence in the designated sponsor placement throughout the active promotional period.'],
+    description: ['Your logo will be displayed throughout XBTesports™ livestreams, including Starting Soon, Live Match, Be Right Back, Just Chatting, and Ending scenes.'],
     requirementsTitle: 'ASSET REQUIREMENTS', requirements: ['High-quality transparent PNG or SVG.', 'XBTesports™ resizes the logo to fit the designated placement while preserving its original proportions.'] },
   { id: 'segment', title: 'Segment Partner', price: 350, duration: '1 month', status: 'available', currentPartner: null,
-    description: ['Promote your brand directly during XBTesports™ livestreams with short commercial placements.', 'Your commercial appears approximately once every 15 minutes during eligible broadcasts. Most standard broadcasts last approximately one hour, allowing up to four placements during a typical stream.'],
-    requirementsTitle: 'COMMERCIAL REQUIREMENTS', requirements: ['Maximum length: 20 seconds.', 'File format: MP4.', 'Content must be approved by XBTesports™ before airing.', 'Eligible platforms, formats, and scheduling are confirmed before activation.'] },
+    description: ['Promote your brand directly during XBTesports™ livestreams with short commercial placements.', 'Your commercial appears approximately once every 15 minutes during eligible broadcasts. Standard broadcasts last approximately one hour, allowing up to four placements during a typical stream.'],
+    requirementsTitle: 'COMMERCIAL REQUIREMENTS', requirements: ['Maximum length: 15 seconds.', 'File formats: MP4, MOV, or MKV.', 'Content must be approved by XBTesports™ before airing.'] },
   { id: 'social', title: 'Social Media Partner', price: 400, duration: '1 month', status: 'available', currentPartner: null,
-    description: ['Place your brand directly inside XBTesports™ short-form content.', 'Videos published through official XBTesports™ short-form social channels may include your sponsor message at the end of participating videos.'],
-    requirementsTitle: 'SPONSOR MESSAGE REQUIREMENTS', requirements: ['Business or brand name.', 'Short promotional message.', 'Maximum sponsor segment: 10 seconds.', 'Message must be appropriate for XBTesports™ audiences.'] },
+    description: ['Place your brand directly inside XBTesports™ short-form content.', 'Videos published through official XBTesports™ short-form social channels will include your sponsor message at the end of each short-form video.'],
+    requirementsTitle: 'SPONSOR MESSAGE REQUIREMENTS', requirements: ['Business or brand name.', 'Short promotional message.', 'Maximum sponsor segment: 12 seconds.', 'Message must be appropriate for XBTesports™ audiences.'] },
   { id: 'tournament', title: 'Tournament Partner', price: 750, duration: '1 month', status: 'available', currentPartner: null,
-    description: ['Receive co-branding throughout XBTesports™ bracket events during your active partnership period. Your name or brand may become part of the event presentation.', 'XBTesports™ manages tournament operations, promotion, broadcast, and competition management. Partners are encouraged to advertise and repost participating events, but are not required to manage tournament operations.'],
-    example: 'XBTesports™ Open — PRESENTED BY [PARTNER]', requirementsTitle: 'PARTNERSHIP INCLUDES', requirements: ['Co-branded tournament title.', 'Partner logo on official tournament posters.', 'Recognition on registration or tournament pages.', 'Branding on bracket and match graphics.', 'Recognition during winner announcements.', 'Inclusion across qualifying bracket events during the active month.'] }
+    description: ['Your business will be announced as the official partner of all XBTesports™ event presentations.', 'XBTesports™ manages tournament operations, promotion, broadcast, and competition management. Partners are encouraged to repost participating events.'],
+    example: 'XBTesports™ (Tournament/Event Name) — PRESENTED BY [PARTNER NAME]', requirementsTitle: 'PARTNERSHIP INCLUDES', requirements: ['Partner logo on ALL official posters.', 'Branding on ALL bracket and match graphics.', 'Recognition during winner announcements.'] }
 ];
 
 // STATUS UTILITIES — text and symbols convey status without color alone.
@@ -43,7 +43,10 @@ function safePublicUrl(value) {
 // INVENTORY COUNTS — never maintain counts separately in HTML.
 function renderInventoryCounts(slots) {
   document.querySelectorAll('[data-total]').forEach(node => { node.textContent = padCount(slots.length); });
-  for (const status of Object.keys(statusLabels)) document.getElementById(`${status}-count`).textContent = padCount(slots.filter(slot => normalizeStatus(slot.status) === status).length);
+  for (const status of Object.keys(statusLabels)) {
+    const counter = document.getElementById(`${status}-count`);
+    if (counter) counter.textContent = padCount(slots.filter(slot => normalizeStatus(slot.status) === status).length);
+  }
 }
 
 // PARTNERSHIP RENDERING — textContent keeps future public data out of raw HTML.
