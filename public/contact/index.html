@@ -1,1 +1,37 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact — XBTesports™</title><link rel="stylesheet" href="page.css"></head><body></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — XBTesports™</title>
+<meta name="description" content="Get in touch with XBTesports about brand partnerships, prizes, and collaborations.">
+<link rel="canonical" href="https://xbtesports.nyc/contact/">
+<link rel="icon" href="/webicon.png?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/funding/styles.css"><link rel="stylesheet" href="styles.css"><script src="script.js" defer></script>
+</head>
+<body class="xbt-funding xbt-contact">
+<a class="xbt-skip" href="#contact-form">Skip to contact form</a>
+<header class="xbt-funding-header"><a class="xbt-wordmark" href="/" aria-label="XBTesports home">XBT<span>esports</span><sup>™</sup></a><span class="xbt-header-label">CONTACT / XBTESPORTS</span><a class="xbt-hub-link" href="/">BACK TO HUB <span aria-hidden="true">↗</span></a></header>
+<main>
+<section class="contact-layout" aria-labelledby="contact-title">
+<div class="contact-intro"><p class="xbt-micro">XBT // START A CONVERSATION</p><h1 id="contact-title">LET’S<br><span>CONNECT.</span></h1><p>Have a brand, a prize, or a partnership in mind? Tell us a little about yourself and what you’re planning.</p><a class="offers-link" href="/funding/">EXPLORE PARTNERSHIPS <span aria-hidden="true">↗</span></a><div class="contact-aside"><span class="xbt-micro">YOUR BRAND. OUR NEXT CONVERSATION.</span><p>For partnership inquiries, include your preferred placement and campaign timing.</p></div></div>
+<div class="contact-panel"><div class="form-heading"><h2>SEND AN INQUIRY</h2><span aria-hidden="true">01 / CONTACT</span></div>
+<p class="delivery-notice" id="delivery-notice">The contact form is not accepting messages yet. Please check back soon.</p>
+<form id="contact-form" aria-describedby="delivery-notice" method="post">
+<fieldset id="contact-fields" disabled><legend class="visually-hidden">Your inquiry</legend>
+<div class="field-pair"><div class="field"><label for="name">Your name <span>(required)</span></label><input id="name" name="name" autocomplete="name" maxlength="100" required></div><div class="field"><label for="brand">Brand / organization <span>(optional)</span></label><input id="brand" name="organization" autocomplete="organization" maxlength="150"></div></div>
+<div class="field"><label for="email">Your email <span>(required)</span></label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required><p class="field-hint">The address where you’d like to receive a reply.</p></div>
+<div class="field"><label for="partnership">What’s your inquiry about? <span>(required)</span></label><select id="partnership" name="partnership" required><option value="">Select a topic</option><option value="prize">Prize Partner</option><option value="broadcast">Broadcast Partner</option><option value="segment">Segment Partner</option><option value="social">Social Media Partner</option><option value="tournament">Tournament Partner</option><option value="general">General inquiry / collaboration</option></select></div>
+<div class="field"><label for="message">Your message <span>(required)</span></label><textarea id="message" name="message" rows="6" minlength="10" maxlength="5000" placeholder="Tell us about your brand, preferred dates, and what you have in mind." required></textarea></div>
+<div class="form-trap" aria-hidden="true"><label for="website-confirm">Leave this field empty</label><input id="website-confirm" name="_gotcha" tabindex="-1" autocomplete="off"></div>
+<p class="form-note">Please don’t include passwords, payment information, or other sensitive details. An inquiry does not reserve a partnership position.</p>
+<button class="send-button" id="send-button" type="submit" disabled>SENDING UNAVAILABLE <span aria-hidden="true">→</span></button>
+</fieldset>
+<p id="form-status" role="status" aria-live="polite" tabindex="-1"></p>
+</form>
+<noscript><p class="form-note">JavaScript is required to use this form.</p></noscript>
+</div></section>
+</main>
+<footer class="xbt-funding-footer"><a class="xbt-wordmark" href="/">XBT<span>esports</span><sup>™</sup></a><p>FREE COMPETITION. SUPPORTED BY PARTNERS.</p><a href="/funding/">BECOME A PARTNER <span aria-hidden="true">↗</span></a></footer>
+</body></html>
