@@ -5,7 +5,7 @@
 // This adapter expects Formspree-compatible JSON POST requests/responses.
 // Configure provider-side spam protection/rate limits and disable autoresponses
 // that expose the receiving address. Replies should use the chosen business inbox.
-const contactConfig = { endpoint: '' };
+const contactConfig = { endpoint: 'https://formspree.io/f/xdeknado' };
 const form = document.getElementById('contact-form');
 const fields = document.getElementById('contact-fields');
 const button = document.getElementById('send-button');
