@@ -1,0 +1,4 @@
+ALTER TABLE posts ADD COLUMN game TEXT NOT NULL DEFAULT '';
+ALTER TABLE posts ADD COLUMN tags TEXT NOT NULL DEFAULT '';
+ALTER TABLE users ADD COLUMN last_active TEXT;
+CREATE INDEX player_activity ON users(last_active DESC);

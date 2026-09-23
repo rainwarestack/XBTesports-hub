@@ -1,5 +1,6 @@
 // Calendar API: public reads, server-verified single-owner administration.
 // No development login, shared public password, or client-side security bypass.
+import {socialAPI} from './social/api.mjs';
 const encoder = new TextEncoder();
 const keysCache = new Map();
 const CATEGORIES = ['Tournament', 'Registration', 'Special Event'];
@@ -102,6 +103,25 @@ export default {
     const url = new URL(request.url);
     const publicRead = url.pathname === '/api/events' && request.method === 'GET';
     try {
+      if(url.pathname.startsWith('/api/social/')) {
+        await requireOwner(request,env);
+        if(!['GET','HEAD'].includes(request.method)&&request.headers.get('Origin')!==url.origin)throw failure('Use the protected editor for owner actions.',403);
+        if(!env.SOCIAL_DB)throw failure('Social storage is not connected.',503);
+        await env.SOCIAL_DB.batch([
+          env.SOCIAL_DB.prepare("INSERT OR IGNORE INTO users(id,handle,password_hash,salt,recovery_hash,role,created_at) VALUES('access-owner','xbtesports','','','','administrator',?)").bind(new Date().toISOString()),
+          env.SOCIAL_DB.prepare("INSERT OR IGNORE INTO profiles(user_id,display_name) VALUES('access-owner','XBTesports™')")
+        ]);
+        return socialAPI(request,env,{id:'access-owner',handle:'xbtesports',display_name:'XBTesports™',role:'administrator',status:'active'});
+      }
+      if(url.pathname==='/social'||url.pathname.startsWith('/social/')||url.pathname.startsWith('/admin/brackets')||url.pathname.startsWith('/admin/moderation')) {
+        await requireOwner(request,env);
+        const target=/\.(css|js|mjs)$/.test(url.pathname)?url.pathname:'/social/';
+        const response=await env.ASSETS.fetch(new Request(new URL(target,url.origin),request));
+        const secured=new Response(response.body,response);
+        secured.headers.set('X-Content-Type-Options','nosniff');
+        secured.headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+        return secured;
+      }
       if (publicRead) {
         if(!env.CALENDAR_DB)throw failure('Calendar storage is not connected.',503);
         const {results}=await env.CALENDAR_DB.prepare("SELECT * FROM calendar_events WHERE visibility = 'public' ORDER BY start").all();

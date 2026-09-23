@@ -1,6 +1,7 @@
 name = "xbtesports-calendar"
 main = "calendar-api.mjs"
 compatibility_date = "2026-09-12"
+compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 [assets]
@@ -21,3 +22,9 @@ binding = "CALENDAR_DB"
 database_name = "xbtesports-calendar"
 database_id = "3c1e999c-31b1-44c6-80f9-84a6e7c5fa43"
 migrations_dir = "calendar-migrations"
+
+[[d1_databases]]
+binding = "SOCIAL_DB"
+database_name = "xbtesports-social"
+database_id = "977c2f9c-be13-41fb-97f4-a49b67cc9fe8"
+migrations_dir = "social/migrations"

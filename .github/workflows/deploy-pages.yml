@@ -32,6 +32,8 @@ jobs:
           cp -R public/contact site/contact
           cp -R public/xbt/* site/
           cp public/scoreboard-data.js site/scoreboard-data.js
+          cp -R public/social site/social
+          cp public/404.html site/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./site

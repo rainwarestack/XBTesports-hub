@@ -1,0 +1,26 @@
+import {fail,id,now,one,run,query,body,str,choice,hash,secret,rate,publicProfile} from './core.mjs';
+import {pbkdf2Sync,timingSafeEqual} from 'node:crypto';
+const reserved=new Set(['admin','administrator','xbtesports','support','tournaments','social','official','system','moderator','editor','host']);
+export function handle(value){const s=str(value,'handle',24,true);if(!/^[A-Za-z0-9_]{3,24}$/.test(s)||reserved.has(s.toLowerCase()))throw fail('Use 3–24 letters, numbers or underscores. This handle may be reserved.');return s;}
+function password(value,salt){if(typeof value!=='string'||value.length<12||value.length>128)throw fail('Use a password of 12–128 characters.');return pbkdf2Sync(value,salt,210000,32,'sha512').toString('hex');}
+const equal=(a,b)=>a.length===b.length&&timingSafeEqual(Buffer.from(a),Buffer.from(b));
+export async function actor(request,db){const token=request.headers.get('Authorization')?.replace(/^Bearer /,'');if(!token)return null;const user=await one(db,'SELECT u.*,p.* FROM sessions s JOIN users u ON u.id=s.user_id JOIN profiles p ON p.user_id=u.id WHERE s.token_hash=? AND s.expires_at>?',await hash(token),Date.now());if(!user)return null;if(['banned','suspended'].includes(user.status))throw fail('This account is suspended.',403);await run(db,'UPDATE users SET last_active=? WHERE id=? AND (last_active IS NULL OR last_active<?)',new Date().toISOString(),user.id,new Date(Date.now()-300000).toISOString());return publicProfile(user);}
+export function requireUser(user,write=false){if(!user)throw fail('Sign in to continue.',401);if(write&&user.status==='muted')throw fail('This account is currently muted.',403);return user;}
+export function staff(user,roles=['editor','administrator']){requireUser(user);if(!roles.includes(user.role))throw fail('This action requires an authorized editor.',403);}
+async function session(db,user){const token=secret();await run(db,'INSERT INTO sessions VALUES(?,?,?)',await hash(token),user.id,Date.now()+86400000);return {token,user:publicProfile(await one(db,'SELECT u.*,p.* FROM users u JOIN profiles p ON p.user_id=u.id WHERE u.id=?',user.id))};}
+export async function authRoute(request,env,path,user){const db=env.SOCIAL_DB;
+ if(path==='/session'&&request.method==='GET')return {user};
+ if(path==='/logout'&&request.method==='POST'){const t=request.headers.get('Authorization')?.replace(/^Bearer /,'');if(t)await run(db,'DELETE FROM sessions WHERE token_hash=?',await hash(t));return {ok:true};}
+ if(['/signup','/login','/recover'].includes(path)&&request.method==='POST'){
+  await rate(db,'auth-ip:'+await hash(request.headers.get('CF-Connecting-IP')||'local'),12,900);
+  const b=await body(request),h=str(b.handle,'handle',24,true);await rate(db,'auth-h:'+h.toLowerCase(),10,900);
+  if(path==='/signup'){handle(h);const salt=secret(),recovery=secret(),uid=id(),digest=password(b.password,salt);try{await db.batch([query(db,'INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)',uid,h,digest,salt,await hash(recovery),now()),query(db,'INSERT INTO profiles(user_id,display_name) VALUES(?,?)',uid,h)]);}catch(e){if(String(e).includes('UNIQUE'))throw fail('That handle is already taken.',409);throw e;}return {...await session(db,{id:uid}),recovery};}
+  const row=await one(db,'SELECT * FROM users WHERE handle=?',h);
+  if(path==='/recover'){if(!row||!equal(await hash(str(b.recovery,'recovery key',128,true)),row.recovery_hash))throw fail('Handle or recovery key is incorrect.',401);const salt=secret(),recovery=secret();await db.batch([query(db,'UPDATE users SET password_hash=?,salt=?,recovery_hash=? WHERE id=?',password(b.password,salt),salt,await hash(recovery),row.id),query(db,'DELETE FROM sessions WHERE user_id=?',row.id)]);return {recovery,ok:true};}
+  const digest=password(b.password,row?.salt||'nonexistent-account');if(!row||!equal(digest,row.password_hash))throw fail('Handle or password is incorrect.',401);if(['banned','suspended'].includes(row.status))throw fail('This account is suspended.',403);return session(db,row);
+ }
+ if(path==='/profile'&&request.method==='PUT'){requireUser(user,true);const b=await body(request),values=[str(b.display_name,'display name',40,true),str(b.bio,'bio',500),str(b.country,'country',2),str(b.avatar,'avatar',200),str(b.banner,'banner',200),choice(b.color,['teal','white','blue','red','gold'],'color'),choice(b.font,['condensed','tactical','mono','bold','standard'],'font'),str(b.games,'games',200),str(b.platform,'platform',60),str(b.gamertag,'gamertag',80),str(b.region,'region',80),str(b.preferred_role,'preferred role',80),choice(b.presence,['online','away','in tournament','offline'],'presence')];
+  for(const media of [b.avatar,b.banner])if(media&&!/^\/api\/social\/media\/[a-f0-9-]{36}$/.test(media))throw fail('Upload a profile image first.');
+  await run(db,'UPDATE profiles SET display_name=?,bio=?,country=?,avatar=?,banner=?,color=?,font=?,games=?,platform=?,gamertag=?,region=?,preferred_role=?,presence=? WHERE user_id=?',...values,user.id);return {ok:true};}
+ return undefined;
+}

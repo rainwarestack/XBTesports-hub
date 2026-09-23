@@ -15,3 +15,4 @@ h1{font-size:clamp(2.7rem,8vw,8rem);text-transform:none;white-space:nowrap}
 .register-tab img{flex:0 0 25px;margin:0}
 .register-tab span{margin:0}
 @media(max-width:520px){.join-window{justify-self:center}.register-tab{width:54px;height:226px;min-height:226px;font-size:9px}}
+.social-tab{text-decoration:none;display:block}.social-tab:hover{background:#0c2340;box-shadow:inset 0 -3px #e31937}.masthead h1{text-transform:none}
