@@ -1,8 +1,8 @@
-import {players,liveSearch,events} from './network.js';
-import {mountChat,messages} from './chat.js';
-import {api,state,$,$$,esc,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js';
-import {feed,profile,groups,notifications,search,postPage} from './community.js';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js';
+import {players,liveSearch,events} from './network.js?v=20260929-network';
+import {mountChat,messages} from './chat.js?v=20260929-network';
+import {api,state,$,$$,esc,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20260929-network';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20260929-network';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20260929-network';
 const navigation=[['Events','/social/events','▦'],['Players','/social/players','◈'],['Crews','/social/crews','◫'],['Messages','/social/messages','✉'],['Tournaments','/social/tournaments','⌘']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};
