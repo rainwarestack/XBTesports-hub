@@ -24,3 +24,5 @@
 /* Shared public calendar palette. */
 :root{--xbt-bg:#060608;--xbt-surface:#111114;--xbt-accent:#f21940;--xbt-accent-dark:#bc102f;--xbt-text:#fff;--xbt-border:rgba(255,255,255,.18)}
 .calendar-embedded .xbt-header,.calendar-embedded .prototype-note{display:none}.calendar-embedded main{padding:0 14px 20px}.calendar-embedded .schedule-strip{margin-top:0}.calendar-embedded .xbt-calendar-toolbar{gap:12px}.calendar-embedded .calendar-footer{font-size:10px}button[aria-pressed="true"],button#today{font-weight:800}
+
+.calendar-embedded .day-cell{min-height:90px}.calendar-embedded .xbt-calendar-toolbar{padding:16px}.calendar-embedded .schedule-strip{font-size:10px;letter-spacing:1px}.calendar-embedded .xbt-calendar-toolbar h2{font-size:24px}.calendar-embedded .view-controls button[aria-pressed=true]{color:#fff}@media(max-width:600px){.calendar-embedded .schedule-strip>span:last-child{display:none}.calendar-embedded .schedule-strip{flex-wrap:wrap}.calendar-embedded .day-cell{min-height:64px}.calendar-embedded .weekday-row span{padding:8px 4px}.calendar-embedded .timezone-control select{max-width:100%}}
