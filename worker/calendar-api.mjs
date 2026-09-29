@@ -119,7 +119,7 @@ export default {
         const response=await env.ASSETS.fetch(new Request(new URL(target,url.origin),request));
         const secured=new Response(response.body,response);
         secured.headers.set('X-Content-Type-Options','nosniff');
-        secured.headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
+        secured.headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https:; frame-src 'self' https://xbtesports-social.smithrock87.workers.dev https://battlefy.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
         return secured;
       }
       if (publicRead) {
@@ -169,7 +169,7 @@ export default {
         const secured=new Response(response.body,response);
         secured.headers.set('X-Content-Type-Options','nosniff');
         secured.headers.set('Referrer-Policy','same-origin');
-        secured.headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+        secured.headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https:; img-src 'self' data:; connect-src 'self' https:; frame-src 'self' https://xbtesports-social.smithrock87.workers.dev https://battlefy.com; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
         return secured;
       }
       return json({error:'Not found.'},404);

@@ -1,3 +1,4 @@
+import {nameMarkup,flag} from './identity.js';
 export const API=/^(www\.)?xbtesports\.nyc$/.test(location.hostname)||location.hostname.endsWith('.github.io')?'https://xbtesports-social.smithrock87.workers.dev/api/social':'/api/social';
 export const ADMIN='https://xbtesports-calendar.smithrock87.workers.dev/social/admin';
 export const state={user:null,token:'',cleanups:[]};try{state.token=sessionStorage.getItem('xbt-social-session')||'';}catch{}
@@ -6,7 +7,7 @@ export const $$=(s,root=document)=>[...root.querySelectorAll(s)];
 export const esc=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 export const media=s=>s?.startsWith('/api/social/media/')?API+s.slice('/api/social'.length):'';
 export const avatar=p=>p?.avatar?`<img class="avatar" src="${esc(media(p.avatar))}" alt="" loading="lazy">`:`<span class="avatar" aria-hidden="true">${esc((p?.display_name||p?.handle||'XBT').slice(0,2).toUpperCase())}</span>`;
-export const identity=p=>`<a class="identity" href="/social/@${esc(p.handle)}" data-route>${avatar(p)}<span><strong class="color-${esc(p.color||'teal')} font-${esc(p.font||'condensed')}">${esc(p.display_name||p.handle)}</strong><small>@${esc(p.handle)}${p.country?' · '+esc(p.country.toUpperCase()):''}</small></span></a>`;
+export const identity=p=>`<a class="identity" href="/social/@${esc(p.handle)}" data-route>${avatar(p)}<span>${nameMarkup(p)}<small>@${esc(p.handle)}${p.country?' · '+flag(p.country):''}</small></span></a>`;
 export const formatDate=(s,tz='America/New_York')=>{if(!s||!Number.isFinite(Date.parse(s)))return 'To be announced';const parts=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(s)),v=k=>parts.find(x=>x.type===k)?.value;return `${v('year')}-${v('month')}-${v('day')} ${v('hour')}:${v('minute')}`;};
 export function title(kicker,text,action=''){return `<div class="page-title"><div><p class="eyebrow">${esc(kicker)}</p><h1>${esc(text)}</h1></div>${action}</div>`;}
 export function empty(heading,text,action=''){return `<section class="empty"><h2>${esc(heading)}</h2><p>${esc(text)}</p>${action}</section>`;}

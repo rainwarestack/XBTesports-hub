@@ -1,4 +1,5 @@
 'use strict';
+if(new URLSearchParams(location.search).get('embed')==='1')document.body.classList.add('calendar-embedded');
 // CONFIGURATION. Public read-only calendar; private event management lives in the editor.
 const CONFIG = { baseTimezone: 'America/New_York', maxCellEvents: 2 };
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';

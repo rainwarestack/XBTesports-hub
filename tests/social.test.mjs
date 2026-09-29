@@ -6,6 +6,54 @@ import {socialAPI} from '../worker/social/api.mjs';
 import {createBracket,result,nextRound,standings} from '../worker/social/brackets.mjs';
 import {mp4Duration} from '../worker/social/media.mjs';
 import {mediaRoute} from '../worker/social/media.mjs';
+import {networkRoute} from '../worker/social/network.mjs';
+import {authRoute} from '../worker/social/auth.mjs';
+import {communityRoute} from '../worker/social/community.mjs';
+test('network presence, literal matching, friendship permissions and inbox isolation',async()=>{
+ const database=db(),env={SOCIAL_DB:database};
+ const people=['rainsoranked','Beta_Player','ThirdPlayer'].map((handle,i)=>({id:'network-'+i,handle,status:'active',role:'player'}));
+ for(const p of people){database.sqlite.prepare('INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)').run(p.id,p.handle,'','','','2026-09-29');database.sqlite.prepare("INSERT INTO profiles(user_id,display_name,presence) VALUES(?,?,'online')").run(p.id,p.handle);}
+ const [a,b,c]=people;
+ const req=(path,method='GET',value)=>new Request('https://social.example/api/social'+path,{method,headers:{'Content-Type':'application/json'},...(value?{body:JSON.stringify(value)}:{})});
+ const call=(path,method='GET',value,user=null)=>networkRoute(req(path,method,value),env,path.split('?')[0],user);
+ assert.equal((await call('/presence')).count,0);
+ assert.equal((await call('/presence','POST',{},a)).count,1);
+ assert.equal((await call('/players')).items[0].handle,'rainsoranked');
+ assert.equal((await call('/players?q=Rai')).items[0].presence,'online');
+ assert.deepEqual((await call('/players?q=%25')).items,[]);
+ assert.deepEqual((await call('/players?q=_')).items.map(p=>p.handle),['Beta_Player']);
+ database.sqlite.prepare('UPDATE chat_presence SET seen_at=0').run();assert.equal((await call('/presence')).count,0);
+ database.sqlite.prepare("UPDATE profiles SET presence='offline' WHERE user_id=?").run(a.id);await call('/presence','POST',{},a);assert.equal((await call('/presence')).count,0);
+ await call('/friends','POST',{handle:b.handle,action:'request'},a);
+ await assert.rejects(()=>call('/friends','POST',{handle:b.handle,action:'accept'},a),e=>e.status===403);
+ await call('/friends','POST',{handle:a.handle,action:'accept'},b);
+ assert.equal((await call('/friends','GET',null,a)).items[0].friendship,'accepted');
+ assert.equal((await call('/friends','GET',null,c)).items.length,0);
+ for(const [sender,channel,content] of [[a,'dm:'+b.handle,'private hello'],[a,'global','public hello'],[b,'global','public reply']])await communityRoute(req('/messages','POST',{channel,content}),env,'/messages',sender);
+ assert.equal((await call('/conversations','GET',null,b)).items[0].content,'private hello');
+ assert.equal((await call('/conversations','GET',null,c)).items.length,0);
+ const chat=await call('/chat');assert.deepEqual(chat.items.map(m=>m.content),['public hello','public reply']);assert.equal(chat.unread,2);
+ assert.equal((await call('/chat?after='+chat.cursor)).unread,0);
+ database.sqlite.prepare('INSERT INTO blocks VALUES(?,?)').run(b.id,a.id);
+ assert.equal((await call('/conversations','GET',null,b)).items.length,0);
+ assert.deepEqual((await call('/chat','GET',null,b)).items.map(m=>m.content),['public reply']);
+ await assert.rejects(()=>call('/friends','POST',{handle:a.handle,action:'request'},b),e=>e.status===403);
+ const search=await communityRoute(req('/search?q=%25'),env,'/search',null);assert.deepEqual(search.players,[]);
+ database.sqlite.close();
+});
+test('profile validates customization and image ownership; GIF upload preserves animation bytes',async()=>{
+ const database=db(),objects=new Map(),user={id:'custom-profile',handle:'CustomPlayer',status:'active'};
+ database.sqlite.prepare('INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)').run(user.id,user.handle,'','','','2026-09-29');database.sqlite.prepare('INSERT INTO profiles(user_id,display_name) VALUES(?,?)').run(user.id,user.handle);
+ const env={SOCIAL_DB:database,MEDIA:{async put(id,b){objects.set(id,b);},async get(id){return {body:objects.get(id)};}}};
+ const gif=Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64');
+ const saved=await mediaRoute(new Request('https://social.example/api/social/media',{method:'POST',body:gif}),env,'/media',user);
+ const base={display_name:'My name',color:'#F02040',font:'standard',font_url:'https://example.com/my-font.woff2',country:'us',presence:'online',avatar:saved.url};
+ const update=value=>authRoute(new Request('https://social.example/api/social/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(value)}),env,'/profile',user);
+ await update(base);const p=database.sqlite.prepare('SELECT * FROM profiles WHERE user_id=?').get(user.id);assert.equal(p.country,'US');assert.equal(p.color,'#F02040');assert.equal(p.font_url,base.font_url);
+ const image=await mediaRoute(new Request('https://social.example'+saved.url),env,saved.url.replace('/api/social',''),null);assert.equal(image.headers.get('Content-Type'),'image/gif');assert.deepEqual(Buffer.from(await image.arrayBuffer()),gif);
+ for(const value of [{color:'red;background:url(evil)'},{font_url:'javascript:alert(1)'},{font_url:'https://example.com/style.css'},{country:'1!'},{avatar:'/api/social/media/11111111-1111-1111-1111-111111111111'}])await assert.rejects(()=>update({...base,...value}),e=>e.status===400);
+ await update({...base,font_url:'',country:''});database.sqlite.close();
+});
 const makePlayers=n=>Array.from({length:n},(_,i)=>({id:'p'+i,name:'Player '+i,handle:'player'+i,seed:i+1}));
 test('media uploads require login, persist bytes, respect visibility and reject excess size',async()=>{
  const database=db(),objects=new Map(),user={id:'media-test',status:'active'};
@@ -26,7 +74,7 @@ test('media uploads require login, persist bytes, respect visibility and reject 
  await assert.rejects(()=>mediaRoute(upload(Buffer.from('<script>invalid</script>')),env,'/media',user),e=>e.status===400);
  assert.equal(objects.size,1);database.sqlite.close();
 });
-function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
+function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0003_network.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
 test('single elimination completes with exactly one champion for 2–32 entrants',()=>{for(let n=2;n<=32;n++){let s=createBracket(makePlayers(n),'Single Elimination');let played=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:2,b:0});played++;}assert.equal(played,n-1);assert.ok(s.champion);assert.equal(standings(s).reduce((a,p)=>a+p.losses,0),n-1);}});
 test('double elimination requires two losses and handles final reset',()=>{for(const n of [2,3,4,5,8,12,16])for(const reset of [false,true]){let s=createBracket(makePlayers(n),'Double Elimination'),count=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:reset&&m.id==='GF'?0:2,b:reset&&m.id==='GF'?2:0});assert.ok(++count<2*n+5);}const stats=standings(s);for(const p of stats)assert.equal(p.losses,p.id===s.champion?(reset?1:0):2,`${n} ${p.id}`);assert.equal(s.matches.some(m=>m.id==='RESET'),reset);}});
 test('overriding upstream result clears dependent completed results',()=>{let s=createBracket(makePlayers(4),'Single Elimination');s=result(s,'W1-0',{a:1,b:0});s=result(s,'W1-1',{a:1,b:0});s=result(s,'W2-0',{a:1,b:0});assert.equal(s.completed,true);s=result(s,'W1-0',{a:0,b:1});assert.equal(s.completed,false);assert.equal(s.matches.find(m=>m.id==='W2-0').status,'Ready');assert.deepEqual(s.matches.find(m=>m.id==='W2-0').scores,[]);});
