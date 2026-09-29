@@ -1,0 +1,12 @@
+const base='https://xbtesports-social.smithrock87.workers.dev/api/social';
+const health=await fetch(base+'/health');console.log('Health:',await health.text());
+const handle='StorageQA_'+crypto.randomUUID().slice(0,8),password=crypto.randomUUID()+crypto.randomUUID();
+const signup=await fetch(base+'/signup',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({handle,password})});
+const session=await signup.json();if(!signup.ok)throw Error(session.error);
+const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX2kAAAAASUVORK5CYII=','base64');
+const upload=await fetch(base+'/media',{method:'POST',headers:{Authorization:'Bearer '+session.token,'Content-Type':'application/octet-stream'},body:png});
+const saved=await upload.json();if(!upload.ok)throw Error(saved.error);
+const url=new URL(saved.url,base),own=await fetch(url,{headers:{Authorization:'Bearer '+session.token}}),download=Buffer.from(await own.arrayBuffer());
+if(!own.ok||!download.equals(png))throw Error('Upload retrieval mismatch');
+const anonymous=await fetch(url);if(anonymous.status!==404)throw Error('Unpublished image was publicly visible');
+console.log(JSON.stringify({verified:true,userId:session.user.id,mediaId:saved.url.split('/').pop(),anonymousStatus:anonymous.status}));

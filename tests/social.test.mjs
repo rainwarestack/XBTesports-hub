@@ -5,7 +5,27 @@ import {readFileSync} from 'node:fs';
 import {socialAPI} from '../worker/social/api.mjs';
 import {createBracket,result,nextRound,standings} from '../worker/social/brackets.mjs';
 import {mp4Duration} from '../worker/social/media.mjs';
+import {mediaRoute} from '../worker/social/media.mjs';
 const makePlayers=n=>Array.from({length:n},(_,i)=>({id:'p'+i,name:'Player '+i,handle:'player'+i,seed:i+1}));
+test('media uploads require login, persist bytes, respect visibility and reject excess size',async()=>{
+ const database=db(),objects=new Map(),user={id:'media-test',status:'active'};
+ database.sqlite.prepare("INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)").run(user.id,'MediaTest','','','','2026-09-29');
+ database.sqlite.prepare('INSERT INTO profiles(user_id,display_name) VALUES(?,?)').run(user.id,'Media Test');
+ const env={SOCIAL_DB:database,MEDIA:{async put(key,bytes){objects.set(key,bytes.slice());},async get(key){return objects.has(key)?{body:objects.get(key)}:null;}}};
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX2kAAAAASUVORK5CYII=','base64');
+ const upload=(bytes=png)=>new Request('https://social.example/api/social/media',{method:'POST',body:bytes});
+ await assert.rejects(()=>mediaRoute(upload(),env,'/media',null),e=>e.status===401);
+ await assert.rejects(()=>mediaRoute(upload(),env,'/media',{...user,status:'muted'}),e=>e.status===403);
+ const saved=await mediaRoute(upload(),env,'/media',user),path=saved.url.replace('/api/social','');
+ const get=new Request('https://social.example'+saved.url);
+ await assert.rejects(()=>mediaRoute(get,env,path,null),e=>e.status===404);
+ const own=await mediaRoute(get,env,path,user);assert.equal(own.headers.get('content-type'),'image/png');assert.deepEqual(Buffer.from(await own.arrayBuffer()),png);
+ database.sqlite.prepare('UPDATE profiles SET avatar=? WHERE user_id=?').run(saved.url,user.id);
+ assert.equal((await mediaRoute(get,env,path,null)).status,200);
+ await assert.rejects(()=>mediaRoute(upload(new Uint8Array(4*1024*1024+1)),env,'/media',user),e=>e.status===413);
+ await assert.rejects(()=>mediaRoute(upload(Buffer.from('<script>invalid</script>')),env,'/media',user),e=>e.status===400);
+ assert.equal(objects.size,1);database.sqlite.close();
+});
 function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
 test('single elimination completes with exactly one champion for 2–32 entrants',()=>{for(let n=2;n<=32;n++){let s=createBracket(makePlayers(n),'Single Elimination');let played=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:2,b:0});played++;}assert.equal(played,n-1);assert.ok(s.champion);assert.equal(standings(s).reduce((a,p)=>a+p.losses,0),n-1);}});
 test('double elimination requires two losses and handles final reset',()=>{for(const n of [2,3,4,5,8,12,16])for(const reset of [false,true]){let s=createBracket(makePlayers(n),'Double Elimination'),count=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:reset&&m.id==='GF'?0:2,b:reset&&m.id==='GF'?2:0});assert.ok(++count<2*n+5);}const stats=standings(s);for(const p of stats)assert.equal(p.losses,p.id===s.champion?(reset?1:0):2,`${n} ${p.id}`);assert.equal(s.matches.some(m=>m.id==='RESET'),reset);}});

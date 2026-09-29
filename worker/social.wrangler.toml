@@ -17,3 +17,7 @@ binding = "SOCIAL_DB"
 database_name = "xbtesports-social"
 database_id = "977c2f9c-be13-41fb-97f4-a49b67cc9fe8"
 migrations_dir = "social/migrations"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "xbtesports-social-media"
