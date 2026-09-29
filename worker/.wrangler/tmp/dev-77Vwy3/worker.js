@@ -1201,7 +1201,7 @@ var worker_default = { async fetch(request, env) {
   const secured = new Response(response.body, response);
   secured.headers.set("X-Content-Type-Options", "nosniff");
   secured.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  secured.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https:; frame-src 'self' https://xbtesports-social.smithrock87.workers.dev https://battlefy.com https://www.youtube.com https://player.twitch.tv; base-uri 'self'; form-action 'self'");
+  secured.headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https://xbtesports-calendar-public.smithrock87.workers.dev; frame-src 'self' https://xbtesports-social.smithrock87.workers.dev https://battlefy.com https://www.youtube.com https://player.twitch.tv; base-uri 'self'; form-action 'self'");
   return secured;
 } };
 
