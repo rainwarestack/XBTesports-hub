@@ -11,3 +11,5 @@ body{background:#000;color:#fff;font-family:Roboto,Arial,sans-serif}
 .crew-picture{display:flex;align-items:center;gap:14px;margin-bottom:15px}.crew-picture .avatar{width:72px;height:72px}.embed-workspace .social-header,.embed-workspace .system-strip,.embed-workspace .footer{display:none}
 @view-transition{navigation:auto}@media(prefers-reduced-motion:reduce){::view-transition-old(root),::view-transition-new(root){animation:none}}
 @media(max-width:700px){.social-header{min-height:46px}.social-header>a{font-size:20px}.system-strip{font-size:9px}.season-tabs{margin-top:14px}.season-tabs a{padding:13px 10px;gap:12px;font-size:10px}.season-tabs small{display:none}.footer{font-size:12px;padding-bottom:100px}.kicker{font-size:9px}.signal-line{font-size:9px}.chat-heading b{font-size:18px}}
+
+.platform-label{display:inline-flex;align-items:center;gap:8px;font:12px Roboto,Arial,sans-serif;margin:6px 0}.platform-label img{filter:invert(1);object-fit:contain}.provider-button{width:100%;margin-top:10px}

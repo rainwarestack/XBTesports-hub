@@ -36,3 +36,5 @@
 /* Terminal palette shared with Social. */
 :root{color-scheme:dark;--xbt-bg:#000;--xbt-surface:#101010;--xbt-accent:#CE1141;--xbt-accent-dark:#CE1141;--xbt-text:#fff;--xbt-muted:#aaa;--xbt-border:#ffffff12}
 .xbt-calendar{background:#000}.xbt-calendar-toolbar,.weekday-row,.month-grid,.day-cell,.period-agenda,.agenda-day,.selected-day{background:transparent}.view-controls button[aria-pressed=true],.date-button[aria-pressed=true],.day-cell.today .date-button{background:#CE1141;color:#fff}.day-cell.selected{background:#CE114112}.xbt-event{background:#CE114118;border-color:#CE1141;color:#fff}.timezone-control select,.timezone-control option{background:#151515;color:#fff}.xbt-modal{background:#111;color:#fff}
+
+.is-today{background:#CE114118}.event-time{color:#fff}.xbt-event:hover{background:#CE114125}
