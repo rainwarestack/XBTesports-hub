@@ -1,9 +1,9 @@
-import {players,liveSearch,events} from './network.js?v=20260929-spectrum';
-import {mountChat,messages} from './chat.js?v=20260929-spectrum';
-import {api,state,$,$$,esc,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20260929-spectrum';
-import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20260929-spectrum';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20260929-spectrum';
-const navigation=[['Events','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Tournaments','/social/tournaments','']];
+import {players,liveSearch,events} from './network.js?v=20260930-terminal';
+import {mountChat,messages} from './chat.js?v=20260930-terminal';
+import {api,state,$,$$,esc,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20260930-terminal';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20260930-terminal';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20260930-terminal';
+const navigation=[['Active Tournaments','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Battlefy','/social/tournaments','']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};
 document.addEventListener('click',e=>{const a=e.target.closest('a[data-route]');if(!a||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;const url=new URL(a.href);if(url.origin!==location.origin)return;e.preventDefault();window.xbtNavigate(url.pathname+url.search);});

@@ -1,3 +1,5 @@
+import {oauthRoute} from '../worker/social/oauth.mjs';
+import {hash} from '../worker/social/core.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
@@ -47,12 +49,20 @@ test('profile validates customization and image ownership; GIF upload preserves 
  const env={SOCIAL_DB:database,MEDIA:{async put(id,b){objects.set(id,b);},async get(id){return {body:objects.get(id)};}}};
  const gif=Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7','base64');
  const saved=await mediaRoute(new Request('https://social.example/api/social/media',{method:'POST',body:gif}),env,'/media',user);
- const base={display_name:'My name',color:'#F02040',font:'standard',font_url:'https://example.com/my-font.woff2',country:'us',presence:'online',avatar:saved.url};
+ const font=Buffer.alloc(28);font.writeUInt32BE(0x10000);font.writeUInt16BE(1,4);font.write('name',12);font.writeUInt32BE(28,20);const uploadedFont=await mediaRoute(new Request('https://social.example/api/social/media?kind=font',{method:'POST',body:font}),env,'/media',user);
+ const base={display_name:'My name',color:'#F02040',font:'standard',font_url:uploadedFont.url,country:'us',presence:'online',avatar:saved.url};
  const update=value=>authRoute(new Request('https://social.example/api/social/profile',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(value)}),env,'/profile',user);
  await update(base);const p=database.sqlite.prepare('SELECT * FROM profiles WHERE user_id=?').get(user.id);assert.equal(p.country,'US');assert.equal(p.color,'#F02040');assert.equal(p.font_url,base.font_url);
  const image=await mediaRoute(new Request('https://social.example'+saved.url),env,saved.url.replace('/api/social',''),null);assert.equal(image.headers.get('Content-Type'),'image/gif');assert.deepEqual(Buffer.from(await image.arrayBuffer()),gif);
  for(const value of [{color:'red;background:url(evil)'},{font_url:'javascript:alert(1)'},{font_url:'https://example.com/style.css'},{country:'1!'},{avatar:'/api/social/media/11111111-1111-1111-1111-111111111111'}])await assert.rejects(()=>update({...base,...value}),e=>e.status===400);
- await update({...base,font_url:'',country:''});database.sqlite.close();
+ const publicFont=await mediaRoute(new Request('https://social.example'+uploadedFont.url),env,uploadedFont.url.replace('/api/social',''),null);assert.equal(publicFont.headers.get('Content-Type'),'font/ttf');
+ await assert.rejects(()=>mediaRoute(new Request('https://social.example/api/social/media?kind=font',{method:'POST',body:gif}),env,'/media',user),e=>e.status===400);
+ const group=await communityRoute(new Request('https://social.example/api/social/groups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({handle:'MyCrew',name:'My Crew',privacy:'Public'})}),env,'/groups',user);
+ const picture=(who,url)=>communityRoute(new Request('https://social.example/api/social/groups/'+group.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({avatar:url})}),env,'/groups/'+group.id,who);
+ await assert.rejects(()=>picture({id:'outsider',status:'active'},saved.url),e=>e.status===403);
+ await assert.rejects(()=>picture(user,uploadedFont.url),e=>e.status===400);
+ await picture(user,saved.url);assert.equal(database.sqlite.prepare('SELECT avatar FROM groups WHERE id=?').get(group.id).avatar,saved.url);
+ await update({...base,avatar:'',font_url:'',country:''});const crewImage=await mediaRoute(new Request('https://social.example'+saved.url),env,saved.url.replace('/api/social',''),null);assert.equal(crewImage.status,200);database.sqlite.close();
 });
 const makePlayers=n=>Array.from({length:n},(_,i)=>({id:'p'+i,name:'Player '+i,handle:'player'+i,seed:i+1}));
 test('media uploads require login, persist bytes, respect visibility and reject excess size',async()=>{
@@ -74,7 +84,7 @@ test('media uploads require login, persist bytes, respect visibility and reject 
  await assert.rejects(()=>mediaRoute(upload(Buffer.from('<script>invalid</script>')),env,'/media',user),e=>e.status===400);
  assert.equal(objects.size,1);database.sqlite.close();
 });
-function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0003_network.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
+function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0003_network.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0004_oauth.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
 test('single elimination completes with exactly one champion for 2–32 entrants',()=>{for(let n=2;n<=32;n++){let s=createBracket(makePlayers(n),'Single Elimination');let played=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:2,b:0});played++;}assert.equal(played,n-1);assert.ok(s.champion);assert.equal(standings(s).reduce((a,p)=>a+p.losses,0),n-1);}});
 test('double elimination requires two losses and handles final reset',()=>{for(const n of [2,3,4,5,8,12,16])for(const reset of [false,true]){let s=createBracket(makePlayers(n),'Double Elimination'),count=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:reset&&m.id==='GF'?0:2,b:reset&&m.id==='GF'?2:0});assert.ok(++count<2*n+5);}const stats=standings(s);for(const p of stats)assert.equal(p.losses,p.id===s.champion?(reset?1:0):2,`${n} ${p.id}`);assert.equal(s.matches.some(m=>m.id==='RESET'),reset);}});
 test('overriding upstream result clears dependent completed results',()=>{let s=createBracket(makePlayers(4),'Single Elimination');s=result(s,'W1-0',{a:1,b:0});s=result(s,'W1-1',{a:1,b:0});s=result(s,'W2-0',{a:1,b:0});assert.equal(s.completed,true);s=result(s,'W1-0',{a:0,b:1});assert.equal(s.completed,false);assert.equal(s.matches.find(m=>m.id==='W2-0').status,'Ready');assert.deepEqual(s.matches.find(m=>m.id==='W2-0').scores,[]);});
@@ -97,3 +107,27 @@ test('social storage, permissions, registrations and community integration',asyn
  await t.test('DM channels are private and blocks work both directions',async()=>{assert.equal((await req('/messages','POST',{channel:'dm:PlayerTwo',content:'Hello'},a.token)).status,200);assert.equal((await req('/messages?channel=dm:PlayerOne','GET',undefined,b.token)).data.items.length,1);assert.equal((await req('/messages?channel=dm:anything','GET',undefined,b.token)).status,403);await req('/block','POST',{handle:'PlayerOne'},b.token);assert.equal((await req('/messages','POST',{channel:'dm:PlayerTwo',content:'Blocked'},a.token)).status,403);});
  await t.test('reports stay private and moderation revokes sessions',async()=>{assert.equal((await req('/reports','POST',{target_type:'post',target_id:post,reason:'Spam',detail:'Review'},b.token)).status,200);assert.equal((await req('/moderation','GET',undefined,b.token)).status,403);assert.equal((await req('/moderation','POST',{action:'ban',target:'PlayerOne'},'',true)).status,200);assert.equal((await req('/session','GET',undefined,a.token)).data.user,null);assert.equal((await req('/login','POST',{handle:'PlayerOne',password:'a strong password 1'})).status,403);});
  database.sqlite.close();});
+
+test('Discord sign-in binds callback and browser verifier, consumes once, and never claims existing handles',async()=>{
+ const database=db(),env={SOCIAL_DB:database,DISCORD_CLIENT_ID:'client',DISCORD_CLIENT_SECRET:'test-secret',OAUTH_BASE_URL:'https://social.example'};
+ const call=(path,method='GET',b,user=null,headers={})=>oauthRoute(new Request('https://social.example/api/social'+path,{method,headers:{'Content-Type':'application/json',...headers},...(b?{body:JSON.stringify(b)}:{})}),env,path.split('?')[0],user);
+ assert.deepEqual(await oauthRoute(new Request('https://social.example/api/social/oauth/providers'),{SOCIAL_DB:database},'/oauth/providers',null),{providers:[]});
+ const verifier='a'.repeat(64),flow=await call('/oauth/begin','POST',{challenge:await hash(verifier)});
+ const start=await call('/oauth/start?state='+flow.state);assert.equal(start.status,302);assert.match(start.headers.get('Set-Cookie'),/Secure; HttpOnly; SameSite=Lax/);assert.equal(new URL(start.headers.get('Location')).searchParams.get('scope'),'identify');
+ await assert.rejects(()=>call('/oauth/callback?state='+flow.state+'&code=test'),e=>e.status===403);
+ await assert.rejects(()=>call('/oauth/complete','POST',{state:flow.state,verifier:'b'.repeat(64)}),e=>e.status===401);
+ assert.equal((await call('/oauth/complete','POST',{state:flow.state,verifier})).pending,true);
+ const original=globalThis.fetch;
+ try{globalThis.fetch=async url=>Response.json(String(url).endsWith('/token')?{access_token:'test-token'}:{id:'123456789012345678'});
+ const callback=await call('/oauth/callback?state='+flow.state+'&code=test','GET',null,null,{'Cookie':'__Host-xbt-oauth='+flow.state});assert.equal(callback.status,200);
+ }finally{globalThis.fetch=original;}
+ assert.equal((await call('/oauth/complete','POST',{state:flow.state,verifier})).needsHandle,true);
+ const signed=await call('/oauth/complete','POST',{state:flow.state,verifier,handle:'DiscordPlayer'});assert.ok(signed.token);assert.equal(signed.user.handle,'DiscordPlayer');
+ await assert.rejects(()=>call('/oauth/complete','POST',{state:flow.state,verifier}),e=>e.status===401);
+ const second=await call('/oauth/begin','POST',{challenge:await hash(verifier)});database.sqlite.prepare('UPDATE oauth_flows SET subject=? WHERE state_hash=?').run('987654321098765432',await hash(second.state));
+ await assert.rejects(()=>call('/oauth/complete','POST',{state:second.state,verifier,handle:'DiscordPlayer'}),e=>e.status===409);
+ const linking=await call('/oauth/begin','POST',{challenge:await hash(verifier),link:true},signed.user);database.sqlite.prepare('UPDATE oauth_flows SET subject=? WHERE state_hash=?').run('123456789012345678',await hash(linking.state));
+ await assert.rejects(()=>call('/oauth/complete','POST',{state:linking.state,verifier}),e=>e.status===401);
+ assert.equal((await call('/oauth/complete','POST',{state:linking.state,verifier},signed.user)).user.id,signed.user.id);
+ database.sqlite.close();
+});
