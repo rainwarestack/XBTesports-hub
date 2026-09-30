@@ -1,4 +1,4 @@
-import {esc} from './core.js?v=20260930-terminal';
+import {esc} from './core.js?v=20260930-terminal2';
 export function platformMarkup(platform){
  if(!platform||platform==='Not specified')return '';
  const logo=platform.startsWith('Xbox')?'xbox':platform.startsWith('PlayStation')?'playstation':platform.startsWith('Nintendo')?'nintendoswitch':platform==='Steam Deck'?'steam':platform==='Android'?'android':platform==='iOS'?'apple':null;

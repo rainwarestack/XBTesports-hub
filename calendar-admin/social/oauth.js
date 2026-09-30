@@ -1,4 +1,4 @@
-import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20260930-terminal';
+import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20260930-terminal2';
 export async function providerButtons(root,link=false){
  try{const {providers}=await api('/oauth/providers');if(!root?.isConnected||!providers.includes('Discord'))return;
  root.innerHTML=`<button type="button" class="button outline provider-button">${link?'Link Discord to this account':'Sign in with Discord'}</button><p class="muted">${link?'Keep your current profile and add another way to sign in.':'New here? Choose your XBT handle after Discord verifies your identity.'}</p>`;
