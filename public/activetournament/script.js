@@ -1,5 +1,5 @@
 'use strict';
-if(new URLSearchParams(location.search).get('embed')==='1')document.body.classList.add('calendar-embedded');
+if(new URLSearchParams(location.search).get('embed')==='1'){document.body.classList.add('calendar-embedded');document.documentElement.classList.add('calendar-embed-root');}
 // CONFIGURATION. Public read-only calendar; private event management lives in the editor.
 const CONFIG = { baseTimezone: 'America/New_York', maxCellEvents: 2 };
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -185,6 +185,7 @@ function renderAgenda() {
   $('calendar').append(agenda);renderSelectedDay();
 }
 function render() {
+  document.body.dataset.calendarView=calendarState.view;
   const badge=document.querySelector('.sample-label'),note=document.querySelector('.prototype-note');
   if(badge)badge.textContent=({sample:'SAMPLE SCHEDULE · PHASE 1',loading:'LOADING SCHEDULE',live:'PUBLISHED SCHEDULE',error:'SCHEDULE UNAVAILABLE'})[scheduleState];
   if(note)note.textContent=({sample:'Preview calendar. All tournaments are fictional examples; registration and tournament links are not live.',loading:'Loading the latest tournament schedule…',live:'Tournament times are displayed in your selected timezone.',error:'The schedule could not be loaded. Please refresh to try again. Holidays are still shown.'})[scheduleState];

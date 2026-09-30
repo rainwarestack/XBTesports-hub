@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const source=readFileSync('public/activetournament/script.js','utf8').split('// MODAL FUNCTIONS.')[0];
-const context=vm.createContext({Intl,Date,document:{getElementById:()=>({options:[{value:'auto'}]})}});
+const context=vm.createContext({Intl,Date,URLSearchParams,location:{search:''},document:{getElementById:()=>({options:[{value:'auto'}]})}});
 vm.runInContext(source,context);
 const run=code=>vm.runInContext(code,context);
 assert.equal(run("dateKey(monthDays(civilDate(2026,8,1))[0])"),'2026-08-30');
