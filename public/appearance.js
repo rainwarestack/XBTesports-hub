@@ -1,0 +1,19 @@
+(()=>{
+ const themes=[['rose-quartz','Rose Quartz','Light · rose & pearl'],['orchid-noir','Orchid Noir','Dark · electric pink'],['mint-silk','Mint Silk','Light · soft mint'],['carbon-flare','Carbon Flare','Dark · hot orange'],['polar-grid','Polar Grid','Light · cobalt & silver'],['night-current','Night Current','Dark · vibrant teal']];
+ const valid=new Set(themes.map(t=>t[0])),key='xbt-appearance',root=document.documentElement;
+ const trusted=new Set([location.origin,'https://xbtesports.nyc','https://www.xbtesports.nyc','https://xbtesports-social.smithrock87.workers.dev','https://xbtesports-calendar.smithrock87.workers.dev']);
+ const isEmbedded=window.parent!==window;let current='carbon-flare';
+ try{const saved=localStorage.getItem(key);if(valid.has(saved))current=saved;}catch{}
+ function notifyFrames(){document.querySelectorAll('iframe').forEach(frame=>{try{const origin=new URL(frame.src,location.href).origin;if(trusted.has(origin))frame.contentWindow?.postMessage({type:'xbt-appearance',theme:current},origin);}catch{}});}
+ function apply(value,persist=false){if(!valid.has(value))return;current=value;root.dataset.appearance=value;if(persist)try{localStorage.setItem(key,value);}catch{}document.querySelectorAll('[data-theme-choice]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.themeChoice===value)));notifyFrames();}
+ apply(current);
+ addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'carbon-flare');});
+ addEventListener('message',e=>{if(!trusted.has(e.origin))return;if(e.source===window.parent&&isEmbedded&&e.data?.type==='xbt-appearance')apply(e.data.theme);if(e.data?.type==='xbt-appearance-ready'&&[...document.querySelectorAll('iframe')].some(f=>f.contentWindow===e.source))notifyFrames();});
+ function init(){
+  if(isEmbedded){let origin;try{origin=new URL(document.referrer).origin;}catch{}if(trusted.has(origin))parent.postMessage({type:'xbt-appearance-ready'},origin);return;}
+  const button=document.createElement('button');button.className='appearance-toggle';button.type='button';button.setAttribute('aria-label','Change appearance');button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-expanded','false');button.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18Z" fill="currentColor"/></svg>';
+  const dialog=document.createElement('dialog');dialog.className='appearance-dialog';dialog.setAttribute('aria-labelledby','appearance-title');dialog.innerHTML='<div class="appearance-heading"><div><h2 id="appearance-title">Make it your atmosphere</h2><p>Six palettes. Saved on this device.</p></div><button type="button" class="appearance-close" aria-label="Close appearance settings">×</button></div><div class="appearance-presets">'+themes.map(([id,name,desc])=>`<button type="button" data-theme-choice="${id}" data-appearance="${id}" aria-pressed="${id===current}"><span class="appearance-swatch"><i></i><i></i><i></i></span><strong>${name}</strong><small>${desc}</small></button>`).join('')+'</div>';
+  document.body.append(button,dialog);button.onclick=()=>{dialog.showModal();button.setAttribute('aria-expanded','true');};dialog.querySelector('.appearance-close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{button.setAttribute('aria-expanded','false');button.focus();});dialog.addEventListener('click',e=>{const b=e.target.closest('[data-theme-choice]');if(b)apply(b.dataset.themeChoice,true);if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();

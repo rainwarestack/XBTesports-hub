@@ -10,3 +10,5 @@ await writeFile('public/404.html',shell);
 await cp('public/social','calendar-admin/social',{recursive:true});
 await cp('public/social','site/social',{recursive:true});
 await writeFile('site/404.html',shell);
+
+for(const target of ['calendar-admin','site'])for(const name of ['appearance.css','appearance.js'])await cp('public/'+name,target+'/'+name);

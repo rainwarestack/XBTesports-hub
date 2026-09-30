@@ -115,7 +115,7 @@ export default {
       }
       if(url.pathname==='/social'||url.pathname.startsWith('/social/')||url.pathname.startsWith('/admin/brackets')||url.pathname.startsWith('/admin/moderation')) {
         await requireOwner(request,env);
-        const target=/\.(css|js|mjs)$/.test(url.pathname)?url.pathname:'/social/';
+        const target=/\.(css|js|mjs|svg|png|jpg|ttf|woff|woff2|otf|txt)$/.test(url.pathname)?url.pathname:'/social/';
         const response=await env.ASSETS.fetch(new Request(new URL(target,url.origin),request));
         const secured=new Response(response.body,response);
         secured.headers.set('X-Content-Type-Options','nosniff');

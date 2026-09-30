@@ -37,6 +37,7 @@ jobs:
           cp -R public/contact/. site/contact/
           cp -R public/xbt/* site/
           cp public/scoreboard-data.js site/scoreboard-data.js
+          cp public/appearance.css public/appearance.js site/
           mkdir -p site/social
           cp -R public/social/. site/social/
           cp public/404.html site/404.html
