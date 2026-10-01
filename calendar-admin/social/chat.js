@@ -1,5 +1,5 @@
-import {api,state,$,$$,esc,identity,avatar,title,empty,field,submit,signed,signIn,toast,report,poll} from './core.js?v=20260930-v2';
-import {nameMarkup,flag} from './identity.js?v=20260930-v2';
+import {api,state,$,$$,esc,identity,avatar,title,empty,field,submit,signed,signIn,toast,report,poll} from './core.js?v=20260930-v2-final';
+import {nameMarkup,flag} from './identity.js?v=20260930-v2-final';
 const plane='<svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path d="M3 3 22 12 3 21 6 13 15 12 6 11Z" fill="currentColor"/></svg>';
 function bubble(m){return `<article class="chat-message ${m.user_id===state.user?.id?'mine':''}">${avatar(m)}<div class="chat-bubble"><a href="/social/@${esc(m.handle)}" data-route>${nameMarkup(m)} <span class="chat-country">${flag(m.country)}</span></a><p>${esc(m.content)}</p><div class="chat-meta"><time datetime="${esc(m.created_at)}">${new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</time><button data-report-chat="${esc(m.id)}" aria-label="Report message by ${esc(m.display_name)}">···</button></div></div></article>`;}
 function composer(){return `<form class="chat-composer"><label class="sr-only">Message<input name="content" placeholder="Type a message…" maxlength="1500" required autocomplete="off"></label><button type="submit" aria-label="Send message">${plane}</button></form>`;}
