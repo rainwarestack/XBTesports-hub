@@ -29,3 +29,5 @@ html[data-appearance]{--xbt-black:var(--ap-bg);--xbt-black-soft:var(--ap-surface
 html[data-appearance] :is(.xbt-hero-bottom p,.xbt-inventory-intro p,.contact-intro>p:not(.xbt-micro)){color:var(--ap-muted)}html[data-appearance] .delivery-notice{background:var(--ap-raised);color:var(--ap-ink)}html[data-appearance] .main-tab{color:var(--ap-muted)}html[data-appearance] .info-card{background:color-mix(in srgb,var(--ap-accent) 5%,var(--ap-surface))}html[data-appearance] .info-card:hover{background:var(--ap-raised);box-shadow:0 14px 40px #0002}html[data-appearance] .info-links a{background:var(--ap-raised);color:var(--ap-ink)}html[data-appearance] .info-links span{color:var(--ap-accent)}
 
 html[data-appearance] .hub>.panel{background:transparent}
+
+html[data-appearance] #season-panel,html[data-appearance] #battlefy-panel{background:transparent}
