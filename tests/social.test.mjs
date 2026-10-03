@@ -11,6 +11,22 @@ import {mediaRoute} from '../worker/social/media.mjs';
 import {networkRoute} from '../worker/social/network.mjs';
 import {authRoute} from '../worker/social/auth.mjs';
 import {communityRoute} from '../worker/social/community.mjs';
+test('notification count covers all pages, is account-scoped, and clears only the reader',async()=>{
+ const database=db(),env={SOCIAL_DB:database};
+ const a={id:'notify-a',handle:'notify_a',status:'active'},b={id:'notify-b',handle:'notify_b',status:'active'};
+ for(const p of [a,b])database.sqlite.prepare('INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)').run(p.id,p.handle,'','','','2026-10-03');
+ for(let i=0;i<36;i++)database.sqlite.prepare('INSERT INTO notifications VALUES(?,?,?,?,?,?)').run('notify-'+i,i===35?b.id:a.id,'Test notification','/social',i===34?1:0,'2026-10-03');
+ const call=(path,user,method='GET')=>communityRoute(new Request('https://social.example/api/social'+path,{method}),env,path,user);
+ try{
+  await assert.rejects(()=>call('/notifications/count',null),e=>e.status===401);
+  assert.equal((await call('/notifications/count',a)).unread,34);
+  assert.equal((await call('/notifications',a)).items.length,30);
+  assert.equal((await call('/notifications/count',b)).unread,1);
+  await call('/notifications',a,'POST');
+  assert.equal((await call('/notifications/count',a)).unread,0);
+  assert.equal((await call('/notifications/count',b)).unread,1);
+ }finally{database.sqlite.close();}
+});
 test('network presence, literal matching, friendship permissions and inbox isolation',async()=>{
  const database=db(),env={SOCIAL_DB:database};
  const people=['rainsoranked','Beta_Player','ThirdPlayer'].map((handle,i)=>({id:'network-'+i,handle,status:'active',role:'player'}));
