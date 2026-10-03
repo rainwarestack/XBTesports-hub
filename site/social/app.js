@@ -1,9 +1,9 @@
-import {mountNotifications,refreshNotifications} from './notifications.js?v=20261003-notifications';
-import {players,liveSearch,events} from './network.js?v=20261003-notifications';
-import {mountChat,messages} from './chat.js?v=20261003-notifications';
-import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20261003-notifications';
-import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20261003-notifications';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20261003-notifications';
+import {mountNotifications,refreshNotifications} from './notifications.js?v=20261003-notifications-live';
+import {players,liveSearch,events} from './network.js?v=20261003-notifications-live';
+import {mountChat,messages} from './chat.js?v=20261003-notifications-live';
+import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20261003-notifications-live';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20261003-notifications-live';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20261003-notifications-live';
 const navigation=[['Active Tournaments','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Battlefy','/social/tournaments','']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};
@@ -38,6 +38,6 @@ async function moderation(root){if(!['moderator','editor','administrator'].inclu
 function legacy(root){const base='https://battlefy.com/embeds/',event='6a75637b75809a00193d6f8b',stage=base+event+'/stage/6a75666879d72d001a3f1634';const views={Bracket:stage,Players:base+'teams/'+event,Standings:stage+'/standings'};root.innerHTML=title('COMPETE / BATTLEFY','BATTLEFY')+`<p class="muted">Register, check players, and follow the Battlefy bracket.</p><a class="button" target="_blank" rel="noreferrer" href="${base}join/${event}">OPEN REGISTRATION </a><div class="tabs section-gap" aria-label="Battlefy event views">${Object.keys(views).map((name,i)=>`<button data-battlefy="${name}" aria-pressed="${i===0}">${name}</button>`).join('')}</div><div class="legacy-embed"><iframe id="battlefy-frame" title="Battlefy bracket" src="${stage}" loading="lazy"></iframe></div><p class="muted">If Battlefy cannot load here, <a href="${stage}" target="_blank" rel="noreferrer">open the bracket on Battlefy </a>.</p>`;$$('[data-battlefy]',root).forEach(b=>b.onclick=()=>{const name=b.dataset.battlefy;$('#battlefy-frame',root).src=views[name];$('#battlefy-frame',root).title='Battlefy '+name.toLowerCase();$$('[data-battlefy]',root).forEach(x=>{x.setAttribute('aria-pressed',String(x===b));x.classList.toggle('active',x===b);});});}
 addEventListener('xbt-session',()=>{updateNav();render();});
 try{state.user=(await api('/session')).user;if(!state.user){state.token='';try{sessionStorage.removeItem('xbt-social-session');}catch{}}}catch{}
-updateNav();render();mountChat();liveSearch();mountNotifications();
+mountNotifications();updateNav();render();mountChat();liveSearch();
 
 addEventListener('xbt-profile',updateNav);

@@ -1,4 +1,4 @@
-import {api,$,$$,esc,media,modal,submit,close,toast,field,state,upload,poll} from './core.js?v=20261003-notifications';
+import {api,$,$$,esc,media,modal,submit,close,toast,field,state,upload,poll} from './core.js?v=20261003-notifications-live';
 
 const credit=shot=>shot.source==='unsplash'?`<small>Photo by <a href="${esc(shot.profile)}?utm_source=xbtesports_social&utm_medium=referral" target="_blank" rel="noopener noreferrer">${esc(shot.name)}</a> on <a href="https://unsplash.com/?utm_source=xbtesports_social&utm_medium=referral" target="_blank" rel="noopener noreferrer">Unsplash</a></small>`:'';
 const shotURL=shot=>shot.preview||(shot.source==='upload'?media(shot.url):shot.thumb||shot.url);

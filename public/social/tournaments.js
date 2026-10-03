@@ -1,4 +1,4 @@
-import {api,state,$,$$,esc,formatDate,title,empty,field,select,area,modal,close,submit,toast,signed,poll,copy,ADMIN} from './core.js?v=20261003-notifications';
+import {api,state,$,$$,esc,formatDate,title,empty,field,select,area,modal,close,submit,toast,signed,poll,copy,ADMIN} from './core.js?v=20261003-notifications-live';
 const formats=['Single Elimination','Double Elimination','Round Robin','Swiss','Free For All'];
 const statuses=['Draft','Registration Open','Registration Closed','Check-In','Live','Completed','Cancelled'];
 export const tournamentCard=t=>`<article class="card tournament-card">${t.thumbnail?`<img class="banner-img" src="${esc(t.thumbnail)}" alt="" loading="lazy">`:''}<span class="tag ${t.status==='Live'?'red':'blue'}">${esc(t.status)}</span><p class="game">${esc(t.game)}</p><h2>${esc(t.title)}</h2><p>${esc(t.format)} · ${esc(t.region||'All regions')}</p><small>${formatDate(t.start,t.timezone)}<br>${esc(t.timezone)}</small><a class="button outline" href="/social/tournaments/${esc(t.slug)}" data-route>VIEW TOURNAMENT </a></article>`;
