@@ -1,4 +1,4 @@
-import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20260930-v2-final';
+import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20261002-profile-remodel';
 export async function providerButtons(root,link=false){
  try{const {providers}=await api('/oauth/providers');if(!root?.isConnected)return;const available=providers.filter(p=>['Google','Discord'].includes(p));if(!available.length)return;
  root.innerHTML=available.map(provider=>`<button type="button" data-provider="${provider}" class="button outline provider-button">${link?'Link '+provider+' to this account':'Sign in with '+provider}</button>`).join('')+`<p class="muted">${link?'Keep your current profile and add another way to sign in.':'New here? Choose your XBT handle after your identity is verified.'}</p>`;

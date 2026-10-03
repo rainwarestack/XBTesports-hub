@@ -1,8 +1,8 @@
-import {players,liveSearch,events} from './network.js?v=20260930-v2-final';
-import {mountChat,messages} from './chat.js?v=20260930-v2-final';
-import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20260930-v2-final';
-import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20260930-v2-final';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20260930-v2-final';
+import {players,liveSearch,events} from './network.js?v=20261002-profile-remodel';
+import {mountChat,messages} from './chat.js?v=20261002-profile-remodel';
+import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20261002-profile-remodel';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20261002-profile-remodel';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20261002-profile-remodel';
 const navigation=[['Active Tournaments','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Battlefy','/social/tournaments','']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};

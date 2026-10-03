@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS profile_extras (
+ user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+ lastfm TEXT NOT NULL DEFAULT '',
+ clock INTEGER NOT NULL DEFAULT 0,
+ games TEXT NOT NULL DEFAULT '[]',
+ shots TEXT NOT NULL DEFAULT '[]',
+ timezone TEXT NOT NULL DEFAULT 'America/New_York'
+);
