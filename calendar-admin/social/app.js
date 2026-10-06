@@ -41,3 +41,11 @@ try{state.user=(await api('/session')).user;if(!state.user){state.token='';try{s
 mountNotifications();updateNav();render();mountChat();liveSearch();
 
 addEventListener('xbt-profile',updateNav);
+
+// Move the existing controls (and their event handlers) below the content on phones.
+const accountLinks=document.querySelector('.sidebar-bottom'),accountSidebar=document.querySelector('.sidebar');
+const mobileAccountArea=document.createElement('nav');mobileAccountArea.className='mobile-account-area';mobileAccountArea.setAttribute('aria-label','Account links');mobileAccountArea.hidden=true;
+document.querySelector('.footer').before(mobileAccountArea);
+const mobileAccountLayout=matchMedia('(max-width:760px), (max-width:1150px) and (pointer:coarse)');
+function positionAccountLinks(){if(mobileAccountLayout.matches){mobileAccountArea.append(accountLinks);mobileAccountArea.hidden=false;}else{accountSidebar.append(accountLinks);mobileAccountArea.hidden=true;}}
+mobileAccountLayout.addEventListener('change',positionAccountLinks);positionAccountLinks();
