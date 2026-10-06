@@ -1,9 +1,9 @@
-import {mountNotifications,refreshNotifications} from './notifications.js?v=20261006-editor-guard';
-import {players,liveSearch,events} from './network.js?v=20261006-editor-guard';
-import {mountChat,messages} from './chat.js?v=20261006-editor-guard';
-import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20261006-editor-guard';
-import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20261006-editor-guard';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20261006-editor-guard';
+import {mountNotifications,refreshNotifications} from './notifications.js?v=20261006-tournament-calendar';
+import {players,liveSearch,events} from './network.js?v=20261006-tournament-calendar';
+import {mountChat,messages} from './chat.js?v=20261006-tournament-calendar';
+import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20261006-tournament-calendar';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=20261006-tournament-calendar';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20261006-tournament-calendar';
 const navigation=[['Active Tournaments','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Battlefy','/social/tournaments','']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};

@@ -252,3 +252,6 @@ $('calendar').addEventListener('keydown',event=>{
 });
 // INITIALIZATION
 $('timezone').value=preference;render();refreshPublicSchedule();
+
+setInterval(()=>{if(!document.hidden)refreshPublicSchedule();},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshPublicSchedule();});

@@ -1,6 +1,6 @@
-import {installEditorGuard,resetEditor,setEditorSaving} from './editor-guard.js?v=20261006-editor-guard';
-import {providerButtons} from './oauth.js?v=20261006-editor-guard';
-import {nameMarkup,flag} from './identity.js?v=20261006-editor-guard';
+import {installEditorGuard,resetEditor,setEditorSaving} from './editor-guard.js?v=20261006-tournament-calendar';
+import {providerButtons} from './oauth.js?v=20261006-tournament-calendar';
+import {nameMarkup,flag} from './identity.js?v=20261006-tournament-calendar';
 export const API=/^(www\.)?xbtesports\.nyc$/.test(location.hostname)||location.hostname.endsWith('.github.io')?'https://xbtesports-social.smithrock87.workers.dev/api/social':'/api/social';
 export const ADMIN='https://xbtesports-calendar.smithrock87.workers.dev/social/admin';
 export const state={user:null,token:'',cleanups:[]};try{state.token=sessionStorage.getItem('xbt-social-session')||'';}catch{}

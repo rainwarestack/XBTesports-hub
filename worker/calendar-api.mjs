@@ -1,3 +1,4 @@
+import {publicSchedule} from './public-schedule.mjs';
 // Calendar API: public reads, server-verified single-owner administration.
 // No development login, shared public password, or client-side security bypass.
 import {socialAPI} from './social/api.mjs';
@@ -124,8 +125,7 @@ export default {
       }
       if (publicRead) {
         if(!env.CALENDAR_DB)throw failure('Calendar storage is not connected.',503);
-        const {results}=await env.CALENDAR_DB.prepare("SELECT * FROM calendar_events WHERE visibility = 'public' ORDER BY start").all();
-        return json({events:results.map(unpack)},200,true);
+        return json({events:await publicSchedule(env)},200,true);
       }
       // Only this non-sensitive readiness response is available before login.
       if(url.pathname === '/api/status' && request.method === 'GET') return json({configured:Boolean(env.ACCESS_TEAM_DOMAIN && env.ACCESS_AUD && env.CALENDAR_DB)});

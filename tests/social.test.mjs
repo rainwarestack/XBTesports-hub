@@ -11,6 +11,33 @@ import {mediaRoute} from '../worker/social/media.mjs';
 import {networkRoute} from '../worker/social/network.mjs';
 import {authRoute} from '../worker/social/auth.mjs';
 import {communityRoute} from '../worker/social/community.mjs';
+import {tournamentRoute} from '../worker/social/tournaments.mjs';
+import {publicSchedule} from '../worker/public-schedule.mjs';
+test('published tournaments enter calendar and announce once; drafts and stale writes stay private',async()=>{
+ const database=db(),env={SOCIAL_DB:database,CALENDAR_DB:{prepare:()=>({all:async()=>({results:[]})})}},admin={id:'access-owner',role:'administrator',status:'active'};
+ for(const [id,status] of [['access-owner','active'],['alice','active'],['bob','active'],['banned','banned']]){
+  database.sqlite.prepare('INSERT INTO users(id,handle,password_hash,salt,recovery_hash,status,created_at) VALUES(?,?,?,?,?,?,?)').run(id,id,'','','',status,'2026-10-06');
+  database.sqlite.prepare('INSERT INTO profiles(user_id,display_name) VALUES(?,?)').run(id,id);
+ }
+ const event={title:'Calendar Cup',game:'Halo',format:'Single Elimination',status:'Draft',start:'2026-10-10T18:00:00Z',end:'2026-10-10T21:00:00Z'};
+ const call=(path,body,user=admin)=>tournamentRoute(new Request('https://social.example/api/social'+path,{method:path==='/tournaments'||path.endsWith('/bracket')||path.endsWith('/register')?'POST':'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),env,path,user);
+ const announcements=()=>database.sqlite.prepare("SELECT * FROM notifications WHERE id LIKE 'tournament:%'").all();
+ try{
+  const created=await call('/tournaments',event),path='/tournaments/'+created.id;
+  assert.deepEqual(await publicSchedule(env),[]);assert.equal(announcements().length,0);
+  await call(path,{...event,status:'Registration Open',revision:1});assert.equal(announcements().length,2);
+  const calendar=await publicSchedule(env);assert.equal(calendar.length,1);assert.equal(calendar[0].end,event.end);assert.equal(calendar[0].tournamentUrl,'https://xbtesports.nyc/social/tournaments/calendar-cup');
+  await assert.rejects(()=>call(path,{...event,status:'Live',revision:1}),e=>e.status===409);assert.equal(announcements().length,2);
+  for(const id of ['alice','bob'])await call(path+'/register',{}, {id,status:'active'});
+  const generated=await call(path+'/bracket',{action:'generate'});
+  const started=await call(path+'/bracket',{action:'start',revision:generated.bracket.revision});assert.equal(announcements().length,4);assert.equal((await publicSchedule(env))[0].status,'Live');
+  await call(path+'/bracket',{action:'start',revision:started.bracket.revision});assert.equal(announcements().length,4);
+  const revision=database.sqlite.prepare('SELECT revision FROM tournaments WHERE id=?').get(created.id).revision;
+  await call(path,{...event,revision});assert.deepEqual(await publicSchedule(env),[]);
+  await call(path,{...event,status:'Registration Open',revision:revision+1});assert.equal(announcements().length,4);
+  await call('/tournaments',{...event,title:'Already public',status:'Live'});assert.equal((await publicSchedule(env)).length,2);assert.equal(announcements().length,6);
+ }finally{database.sqlite.close();}
+});
 test('notification count covers all pages, is account-scoped, and clears only the reader',async()=>{
  const database=db(),env={SOCIAL_DB:database};
  const a={id:'notify-a',handle:'notify_a',status:'active'},b={id:'notify-b',handle:'notify_b',status:'active'};
