@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+test('editor backdrop stays open; explicit dismissal protects edits and pending saves',()=>{
+ const listeners={},button={};let closed=0,confirmations=0,discard=false;
+ const dialog={addEventListener:(name,fn)=>listeners[name]=fn,close(){closed++;listeners.close();}};
+ const context=vm.createContext({document:{querySelector:s=>s==='#dialog'?dialog:button},window:{confirm(){confirmations++;return discard;}}});
+ vm.runInContext(readFileSync(new URL('../public/social/editor-guard.js',import.meta.url),'utf8').replace(/export /g,''),context);
+ context.installEditorGuard();
+ listeners.click({target:{closest:()=>null}});assert.equal(closed,0);
+ button.onclick();assert.equal(closed,1);assert.equal(confirmations,0);
+ listeners.input();button.onclick();assert.equal(closed,1);assert.equal(confirmations,1);
+ let prevented=false;listeners.cancel({preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(closed,1);
+ discard=true;button.onclick();assert.equal(closed,2);
+ listeners.click({target:{closest:()=>({})}});discard=false;button.onclick();assert.equal(closed,2);
+ context.setEditorSaving(true);discard=true;button.onclick();assert.equal(closed,2);
+ context.setEditorSaving(false);button.onclick();assert.equal(closed,3);
+ button.onclick();assert.equal(closed,4);
+});

@@ -1,4 +1,4 @@
-import {api,state,$} from './core.js?v=20261003-notifications-live';
+import {api,state,$} from './core.js?v=20261006-editor-guard';
 
 let revision=0,timer=null,mounted=false,inFlight=false,queued=false;
 function display(count){
