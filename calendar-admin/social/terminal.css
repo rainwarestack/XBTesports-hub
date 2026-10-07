@@ -21,3 +21,7 @@ body{background:#000;color:#fff;font-family:Roboto,Arial,sans-serif}
 @media(max-width:700px){.sidebar{overflow:visible}#social-nav{width:100%;overflow-x:auto;scrollbar-width:thin;padding-bottom:5px}.sidebar-bottom{padding-bottom:5px}}
 
 .mobile-account-area{max-width:1800px;margin:0 auto;padding:0 20px 28px}.mobile-account-area[hidden]{display:none}.mobile-account-area .sidebar-bottom{display:flex;flex-direction:column;align-items:center;gap:14px;margin:0;padding:0}.mobile-account-area .sidebar-bottom>a:last-child{display:inline-flex}.mobile-account-area .notification-link{display:inline-flex;align-items:center}.embed-workspace .mobile-account-area{display:none}
+
+/* Account security: private, mobile-friendly setup and recovery. */
+.security-section{padding:1.1rem 0;border-bottom:1px solid color-mix(in srgb,currentColor 12%,transparent)}
+.security-section h3{margin:0 0 .5rem}.security-key{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:1rem;margin:1rem 0;border-radius:.6rem;background:var(--panel,#181818);color:var(--text,#fff);font:500 .95rem/1.8 monospace;user-select:all}.security-steps{padding-left:1.4rem}.security-steps li{margin:.8rem 0}#dialog button:disabled{opacity:.5;cursor:not-allowed}

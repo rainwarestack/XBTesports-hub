@@ -1,4 +1,4 @@
-import {api,state,$} from './core.js?v=20261006-tournament-calendar';
+import {api,state,$} from './core.js?v=20261007-account-security';
 
 let revision=0,timer=null,mounted=false,inFlight=false,queued=false;
 function display(count){

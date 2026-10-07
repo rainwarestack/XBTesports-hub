@@ -1,3 +1,4 @@
+import {finishSignIn,reauthenticate} from './security.mjs';
 import {body,fail,hash,secret,one,run,query,id,now,rate,str} from './core.mjs';
 import {handle,session,requireUser} from './auth.mjs';
 const providers={discord:{name:'Discord',prefix:'DISCORD',authorize:'https://discord.com/oauth2/authorize',token:'https://discord.com/api/oauth2/token',identity:'https://discord.com/api/v10/users/@me',scope:'identify'},google:{name:'Google',prefix:'GOOGLE',authorize:'https://accounts.google.com/o/oauth2/v2/auth',token:'https://oauth2.googleapis.com/token',identity:'https://openidconnect.googleapis.com/v1/userinfo',scope:'openid profile'}};
@@ -13,7 +14,7 @@ export async function oauthRoute(request,env,path,user){
  if(path==='/oauth/begin'&&request.method==='POST'){
   await rate(db,'oauth:'+await hash(request.headers.get('CF-Connecting-IP')||'local'),12,900);
   const b=await body(request),provider=String(b.provider||'discord').toLowerCase();if(!configured(env,provider))throw fail('Provider sign-in is not configured yet.',503);if(!/^[a-f0-9]{64}$/.test(b.challenge||''))throw fail('Invalid sign-in request.');
-  if(b.link)requireUser(user,true);
+  if(b.link){requireUser(user,true);await reauthenticate(request,env,user,b);}
   const state=secret();await run(db,'DELETE FROM oauth_flows WHERE expires_at<?',Date.now());
   await run(db,'INSERT INTO oauth_flows(state_hash,verifier_hash,user_id,expires_at,provider,provider_verifier) VALUES(?,?,?,?,?,?)',await hash(state),b.challenge,b.link?user.id:null,Date.now()+600000,provider,secret());
   return {state,url:env.OAUTH_BASE_URL+'/api/social/oauth/start?state='+state};
@@ -52,7 +53,7 @@ export async function oauthRoute(request,env,path,user){
   const consumed=await one(db,'DELETE FROM oauth_flows WHERE state_hash=? AND verifier_hash=? AND expires_at>? RETURNING state_hash',stateHash,verifierHash,Date.now());if(!consumed)throw fail('Sign-in already completed. Start again.',409);
   const uid=existing?.id||flow.user_id||id();
   if(!existing){try{const statements=[];if(!flow.user_id)statements.push(query(db,'INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)',uid,selectedHandle,'oauth-only',secret(),await hash(secret()),now()),query(db,'INSERT INTO profiles(user_id,display_name) VALUES(?,?)',uid,selectedHandle));statements.push(query(db,"INSERT INTO oauth_identities(provider,subject,user_id) VALUES(?,?,?)",flow.provider,flow.subject,uid));await db.batch(statements);}catch(e){if(String(e).includes('UNIQUE'))throw fail('This account or handle was just linked. Start sign-in again.',409);throw e;}}
-  return {...await session(db,{id:uid}),linked:!!flow.user_id};
+  return {...await (flow.user_id?session(db,existing||{id:uid}):finishSignIn(env,existing||{id:uid})),linked:!!flow.user_id};
  }
  throw fail('Not found.',404);
 }

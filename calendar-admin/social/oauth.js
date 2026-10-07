@@ -1,19 +1,23 @@
-import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20261006-tournament-calendar';
+import {challengePrompt} from './security.js?v=20261007-account-security';
+import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20261007-account-security';
 export async function providerButtons(root,link=false){
  try{const {providers}=await api('/oauth/providers');if(!root?.isConnected)return;const available=providers.filter(p=>['Google','Discord'].includes(p));if(!available.length)return;
  root.innerHTML=available.map(provider=>`<button type="button" data-provider="${provider}" class="button outline provider-button">${link?'Link '+provider+' to this account':'Sign in with '+provider}</button>`).join('')+`<p class="muted">${link?'Keep your current profile and add another way to sign in.':'New here? Choose your XBT handle after your identity is verified.'}</p>`;
- root.querySelectorAll('button').forEach(button=>button.onclick=()=>start(link,button.dataset.provider));
+ root.querySelectorAll('button').forEach(button=>button.onclick=()=>link?confirmLink(button.dataset.provider):start(false,button.dataset.provider));
  }catch{/* Password sign-in remains available if provider discovery fails. */}
 }
-async function start(link,provider){
+async function confirmLink(provider){
+ try{const status=await api('/security/status');modal(`<h2>Link ${provider}</h2><p>Confirm your identity before adding another sign-in method. If you use provider sign-in, sign out and back in first if it has been over five minutes.</p><form id="confirm-provider">${status.hasPassword?field('current_password','Current password (optional after a recent sign-in)','','password','autocomplete="current-password"'):''}${status.twoFactor?field('code','Authenticator or backup code','','text','required autocomplete="one-time-code" maxlength="40"'):''}<button type="submit" class="button">CONTINUE TO ${provider.toUpperCase()}</button></form>`);submit($('#confirm-provider'),b=>start(true,provider,b));}catch(e){toast(e.message);}
+}
+async function start(link,provider,proof={}){
  const popup=window.open('about:blank','xbt-provider','popup,width=500,height=720');if(!popup){toast('Allow a popup to sign in with your provider.');return;}
  let timer;
  try{
   const verifier=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join('');
   const challenge=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier))),b=>b.toString(16).padStart(2,'0')).join('');
-  const flow=await api('/oauth/begin',{method:'POST',body:{challenge,link,provider:provider.toLowerCase()}});popup.location.href=flow.url;
+  const flow=await api('/oauth/begin',{method:'POST',body:{challenge,link,provider:provider.toLowerCase(),...proof}});popup.location.href=flow.url;
   const deadline=Date.now()+600000;
-  const finish=data=>{state.token=data.token;state.user=data.user;try{sessionStorage.setItem('xbt-social-session',data.token);}catch{}popup.close();close();window.dispatchEvent(new Event('xbt-session'));toast(data.linked?provider+' linked to your profile.':'Signed in.');};
+  const finish=data=>{if(data.requiresTwoFactor){popup.close();return challengePrompt(data,finish);}state.token=data.token;state.user=data.user;try{sessionStorage.setItem('xbt-social-session',data.token);}catch{}popup.close();close();window.dispatchEvent(new Event('xbt-session'));toast(data.linked?provider+' linked to your profile.':'Signed in.');};
   async function check(){
    if(Date.now()>deadline){popup.close();toast('Sign-in timed out. Try again.');return;}
    try{const data=await api('/oauth/complete',{method:'POST',body:{state:flow.state,verifier}});

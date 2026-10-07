@@ -17,4 +17,4 @@ export async function rate(db,key,max=30,seconds=60){const t=Math.floor(Date.now
 export async function notify(db,user,text,link){if(user)await run(db,'INSERT INTO notifications VALUES(?,?,?,?,0,?)',id(),user,text,link,now());}
 export async function notifyMany(db,recipients,text,link){const data=[...new Set(recipients.filter(Boolean))].map(user=>({id:id(),user,text,link,created:now()}));if(data.length)await run(db,"INSERT INTO notifications SELECT json_extract(value,'$.id'),json_extract(value,'$.user'),json_extract(value,'$.text'),json_extract(value,'$.link'),0,json_extract(value,'$.created') FROM json_each(?) WHERE EXISTS(SELECT 1 FROM users WHERE id=json_extract(value,'$.user'))",JSON.stringify(data));}
 export function page(url){return Math.min(Math.max(Number(url.searchParams.get('page'))||0,0),10000)*30;}
-export function publicProfile(row){if(!row)return null;const {password_hash,salt,recovery_hash,...safe}=row;return safe;}
+export function publicProfile(row){if(!row)return null;const {password_hash,salt,recovery_hash,auth_version,...safe}=row;return safe;}
