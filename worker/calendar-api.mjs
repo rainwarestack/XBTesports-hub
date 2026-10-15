@@ -104,6 +104,8 @@ export default {
     const url = new URL(request.url);
     const publicRead = url.pathname === '/api/events' && request.method === 'GET';
     try {
+      if(url.pathname==='/cards'||url.pathname.startsWith('/cards/'))await requireOwner(request,env);
+      if(url.pathname==='/cards')return Response.redirect(url.origin+'/cards/',302);
       if(url.pathname.startsWith('/api/social/')) {
         await requireOwner(request,env);
         if(!['GET','HEAD'].includes(request.method)&&request.headers.get('Origin')!==url.origin)throw failure('Use the protected editor for owner actions.',403);
