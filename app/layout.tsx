@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "XBTesports™ Hub",
   description: "Current season info, Battlefy embeds, registration, and live esports updates.",
-  icons: { icon: "/favicon-controller.png?v=20261027", shortcut: "/favicon-controller.png?v=20261027" },
+  icons: { icon: "/favicon-controller.ico?v=20261027-ico", shortcut: "/favicon-controller.ico?v=20261027-ico" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
