@@ -18,11 +18,11 @@ export async function profile(root,handle){const d=await api('/players/'+encodeU
  if($('#profile-security',root))$('#profile-security',root).onclick=()=>accountSecurity().catch(e=>toast(e.message));
  const content=$('#profile-content',root);async function posts(kind){const list=await api('/posts?kind='+kind+'&author='+encodeURIComponent(handle));content.innerHTML=list.items.map(postCard).join('')||empty('NOTHING HERE YET','This player has not shared anything here.');}postActions(content,()=>posts('post'));if($('#edit-profile',root))$('#edit-profile',root).onclick=()=>editProfile(p,()=>profile(root,handle));if($('#report-player',root))$('#report-player',root).onclick=()=>report('player',p.id);for(const action of ['block','mute'])if($('#'+action+'-player',root))$('#'+action+'-player',root).onclick=()=>{if(!signed())return;modal(`<h2>${action.toUpperCase()} @${esc(handle)}</h2><p>${action==='block'?'Block direct messages and hide this player’s posts.':'Hide this player’s posts and chat messages.'}</p><div class="actions"><button id="apply-user-action" class="button">${action.toUpperCase()}</button><button id="undo-user-action" class="button outline">UNDO ${action.toUpperCase()}</button></div>`);for(const undo of [false,true])$(undo?'#undo-user-action':'#apply-user-action').onclick=async()=>{try{await api('/'+action,{method:'POST',body:{handle,undo}});close();toast('Preference saved.');}catch(e){toast(e.message);}};};await posts('post');}
 export function editProfile(p,refresh){return editIdentity(p,refresh);}
-function verifiedBadge(item,type){
- return item.verified===1?` <img src="/social/badges/verified.gif" alt="Verified ${type}" title="Verified by XBTesports" width="20" height="20">`:'';
+function verifiedBadge(item,type,size=20){
+ return item.verified===1?` <img src="/social/badges/verified.gif" alt="Verified ${type}" title="Verified by XBTesports" width="${size}" height="${size}">`:'';
 }
-export function identity(player){
- return playerIdentity(player).replace('<small>',verifiedBadge(player,'player')+'<small>');
+export function identity(player,badgeSize){
+ return playerIdentity(player).replace('<small>',verifiedBadge(player,'player',badgeSize)+'<small>');
 }
 function verificationButton(item,type){
  return `<button class="button outline" id="verify-entity">${item.verified?'REMOVE VERIFICATION':'VERIFY '+type.toUpperCase()}</button>`;
