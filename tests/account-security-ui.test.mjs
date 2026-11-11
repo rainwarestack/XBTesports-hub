@@ -23,8 +23,7 @@ test('public sign-in offers Discord only, with no password or handle form',async
  assert.doesNotMatch(node('#dialog-content').innerHTML,/<form|<input/);
  const provider=node('#provider-signin');
  assert.match(provider.innerHTML,/Sign in with Discord/);
- assert.match(provider.innerHTML,/Opens Discord in a new window/);
- assert.doesNotMatch(provider.innerHTML,/Google|<form|<input/);
+ assert.doesNotMatch(provider.innerHTML,/Google|New to XBTesports|Opens Discord|<form|<input/);
  assert.equal(typeof node('button').onclick,'function');
 });
 

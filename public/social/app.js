@@ -1,11 +1,11 @@
-import {accountSecurity,captureSecurityLink,openSecurityLink} from './security.js?v=discord-signin';
+import {accountSecurity,captureSecurityLink,openSecurityLink} from './security.js?v=discord-pull-tab';
 const accountLink=captureSecurityLink();
-import {mountNotifications,refreshNotifications} from './notifications.js?v=discord-signin';
-import {players,liveSearch,events} from './network.js?v=discord-signin';
-import {mountChat,messages} from './chat.js?v=discord-signin';
-import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=discord-signin';
-import {feed,profile,groups,notifications,search,postPage} from './community.js?v=discord-signin';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=discord-signin';
+import {mountNotifications,refreshNotifications} from './notifications.js?v=discord-pull-tab';
+import {players,liveSearch,events} from './network.js?v=discord-pull-tab';
+import {mountChat,messages} from './chat.js?v=discord-pull-tab';
+import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=discord-pull-tab';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=discord-pull-tab';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=discord-pull-tab';
 const navigation=[['Active Tournaments','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Battlefy','/social/tournaments','']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};

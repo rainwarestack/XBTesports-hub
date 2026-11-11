@@ -1,17 +1,12 @@
-import {challengePrompt} from './security.js?v=discord-signin';
-import {api,state,modal,$,field,submit,close,toast} from './core.js?v=discord-signin';
+import {challengePrompt} from './security.js?v=discord-pull-tab';
+import {api,state,modal,$,field,submit,close,toast} from './core.js?v=discord-pull-tab';
 export async function providerButtons(root,link=false){
  try{
   const {providers}=await api('/oauth/providers');
   if(!root?.isConnected)return;
   if(!link){
    if(!providers.includes('Discord'))throw new Error('Discord is unavailable');
-   root.innerHTML=`<button type="button" class="button discord-signin-button">
-     <span class="discord-signin-label">Sign in with Discord</span>
-     <span class="discord-signin-detail">Opens Discord in a new window</span>
-     <span class="discord-signin-arrow" aria-hidden="true">↗</span>
-    </button>
-    <p class="muted">New to XBTesports? Choose your player handle after signing in.</p>`;
+   root.innerHTML='<button type="button" class="button discord-signin-button"><span>Sign in with Discord</span><span aria-hidden="true">➜</span></button>';
    root.querySelector('button').onclick=()=>start(false,'Discord');
    return;
   }

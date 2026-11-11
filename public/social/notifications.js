@@ -1,4 +1,4 @@
-import {api,state,$} from './core.js?v=discord-signin';
+import {api,state,$} from './core.js?v=discord-pull-tab';
 
 let revision=0,timer=null,mounted=false,inFlight=false,queued=false;
 function display(count){
