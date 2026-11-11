@@ -1,5 +1,5 @@
-import {challengePrompt} from './security.js?v=discord-pull-tab';
-import {api,state,modal,$,field,submit,close,toast} from './core.js?v=discord-pull-tab';
+import {challengePrompt} from './security.js?v=discord-brand-accent';
+import {api,state,modal,$,field,submit,close,toast} from './core.js?v=discord-brand-accent';
 export async function providerButtons(root,link=false){
  try{
   const {providers}=await api('/oauth/providers');

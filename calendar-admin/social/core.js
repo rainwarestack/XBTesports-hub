@@ -1,6 +1,6 @@
-import {installEditorGuard,resetEditor,setEditorSaving} from './editor-guard.js?v=discord-pull-tab';
-import {providerButtons} from './oauth.js?v=discord-pull-tab';
-import {nameMarkup,flag} from './identity.js?v=discord-pull-tab';
+import {installEditorGuard,resetEditor,setEditorSaving} from './editor-guard.js?v=discord-brand-accent';
+import {providerButtons} from './oauth.js?v=discord-brand-accent';
+import {nameMarkup,flag} from './identity.js?v=discord-brand-accent';
 export const API=/^(www\.)?xbtesports\.nyc$/.test(location.hostname)||location.hostname.endsWith('.github.io')?'https://xbtesports-social.smithrock87.workers.dev/api/social':'/api/social';
 export const ADMIN='https://xbtesports-calendar.smithrock87.workers.dev/social/admin';
 export const state={user:null,token:'',cleanups:[]};try{state.token=sessionStorage.getItem('xbt-social-session')||'';}catch{}
@@ -24,7 +24,7 @@ export function modal(html){installEditorGuard();if(!$('#dialog').open)resetEdit
 export function close(){ $('#dialog').close();}
 export function submit(form,fn){form.addEventListener('submit',async e=>{e.preventDefault();setEditorSaving(true);const b=$('button[type=submit]',form);if(b)b.disabled=true;$('.dialog-error',form)?.remove();try{await fn(values(form),form);}catch(error){form.insertAdjacentHTML('beforeend',`<p class="error dialog-error" role="alert">${esc(error.message)}</p>`);}finally{setEditorSaving(false);if(b)b.disabled=false;}});}
 export function signIn(){
- modal(`<h2>Sign in to XBTesports</h2>
+ modal(`<h2>Sign in to <span class="discord-signin-brand"><span>XBT</span>esports™</span></h2>
   <div id="provider-signin" class="discord-signin" aria-live="polite"><p class="muted">Loading Discord sign-in…</p></div>`);
  providerButtons($('#provider-signin'));
 }

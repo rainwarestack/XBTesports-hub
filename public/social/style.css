@@ -35,11 +35,13 @@ body{background-image:radial-gradient(ellipse at 78% 24%,#e3193729,transparent 4
 .notification-link{display:inline-flex;align-items:center;gap:8px}.notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#ce1141;color:#fff;font:700 11px/1 Arial,sans-serif;flex-shrink:0}.notification-badge[hidden]{display:none}
 @media(max-width:760px){.sidebar .sidebar-bottom{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 0}.sidebar .sidebar-bottom .notification-link{display:inline-flex}}
 
-dialog:has(.discord-signin){width:min(310px,calc(100% - 28px));min-height:min(340px,85dvh);padding:30px;background:#131313;color:#fff;border:1px solid #333;border-radius:15px;box-shadow:0 18px 55px #0008}
+dialog:has(.discord-signin){width:min(310px,calc(100% - 28px));min-height:min(340px,85dvh);padding:30px;background:radial-gradient(ellipse at 100% 0%,#ff772b14,transparent 62%),#131313;color:#fff;border:1px solid #ff772b38;border-radius:15px;box-shadow:0 18px 55px #0008,0 0 24px #ff772b14}
 dialog:has(.discord-signin) #dialog-content{min-height:calc(min(340px,85dvh) - 62px);display:flex;flex-direction:column;justify-content:center;gap:24px}
 dialog:has(.discord-signin) h2{margin:0;font-family:Barlow,sans-serif;font-size:2.45rem;font-weight:900;line-height:.95;text-transform:uppercase;color:#fff}
+.discord-signin-brand{display:block;text-transform:none;font-size:.89em;letter-spacing:-.025em}
+.discord-signin-brand>span{color:#ff772b;text-shadow:0 0 14px #ff772b40}
 dialog:has(.discord-signin) .dialog-close{color:#fff}
-.discord-signin-button.button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 16px;background:#ff772b;color:#111;border:1px solid #ff772b;border-radius:0;font-family:Space Mono,monospace;font-size:.83rem;font-weight:700;letter-spacing:0;text-transform:uppercase}
+.discord-signin-button.button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 16px;background:#ff772b;color:#111;border:1px solid #ff772b;border-radius:0;box-shadow:0 0 16px #ff772b26;font-family:Space Mono,monospace;font-size:.83rem;font-weight:700;letter-spacing:0;text-transform:uppercase}
 .discord-signin-button.button:hover{background:#ff955b;color:#111}
 .discord-signin-button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .discord-signin>.error{margin-bottom:10px}

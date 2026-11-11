@@ -19,7 +19,7 @@ test('public sign-in offers Discord only, with no password or handle form',async
  vm.runInContext(source('core.js')+'\n'+source('oauth.js'),context);
  context.signIn();
  await context.providerButtons(node('#provider-signin'));
- assert.match(node('#dialog-content').innerHTML,/Sign in to XBTesports/);
+ assert.match(node('#dialog-content').innerHTML,/Sign in to .*<span>XBT<\/span>esports™/);
  assert.doesNotMatch(node('#dialog-content').innerHTML,/<form|<input/);
  const provider=node('#provider-signin');
  assert.match(provider.innerHTML,/Sign in with Discord/);

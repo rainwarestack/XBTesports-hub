@@ -1,4 +1,4 @@
-import {api,state,$} from './core.js?v=discord-pull-tab';
+import {api,state,$} from './core.js?v=discord-brand-accent';
 
 let revision=0,timer=null,mounted=false,inFlight=false,queued=false;
 function display(count){
