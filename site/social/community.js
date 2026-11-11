@@ -21,7 +21,7 @@ export function editProfile(p,refresh){return editIdentity(p,refresh);}
 function verifiedBadge(item,type){
  return item.verified===1?` <img src="/social/badges/verified.gif" alt="Verified ${type}" title="Verified by XBTesports" width="20" height="20">`:'';
 }
-function identity(player){
+export function identity(player){
  return playerIdentity(player).replace('<small>',verifiedBadge(player,'player')+'<small>');
 }
 function verificationButton(item,type){

@@ -1,6 +1,6 @@
 import {one,rows,run,body,str,fail,now,notify,page} from './core.mjs';
 import {requireUser} from './auth.mjs';
-const fields='u.id,u.handle,p.display_name,p.bio,p.avatar,p.country,p.color,p.font,p.font_url,p.games,p.platform';
+const fields='u.id,u.handle,p.display_name,p.verified,p.bio,p.avatar,p.country,p.color,p.font,p.font_url,p.games,p.platform';
 const presence="CASE WHEN cp.seen_at>? AND p.presence<>'offline' THEN p.presence ELSE 'offline' END presence";
 const joins='FROM users u JOIN profiles p ON p.user_id=u.id LEFT JOIN chat_presence cp ON cp.user_id=u.id';
 export const literal=value=>'%'+value.replace(/[\\%_]/g,'\\$&')+'%';

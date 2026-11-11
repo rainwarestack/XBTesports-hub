@@ -149,6 +149,9 @@ test('crew verification is site-owner only and appears in public crew reads',asy
   await assert.rejects(()=>call(verificationPath,'PUT',siteOwner,{verified:'true'}),error=>error.status===400);
   await call(verificationPath,'PUT',siteOwner,{verified:true});
   assert.equal((await call('/players','GET')).items[0].verified,1);
+  const catalog=await socialAPI(new Request('https://social.example/api/social/players'),env);
+  assert.equal(catalog.status,200);
+  assert.equal((await catalog.json()).items[0].verified,1);
   assert.equal((await call(playerPath,'GET')).profile.verified,1);
   await call(verificationPath,'PUT',siteOwner,{verified:false});
   assert.equal((await call(playerPath,'GET')).profile.verified,0);
