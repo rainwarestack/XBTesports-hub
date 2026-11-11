@@ -1,6 +1,6 @@
-import {identity} from './community.js?v=catalog-badge-size';
-import {platformMarkup} from './platforms.js?v=20261007-account-security';
-import {api,state,$,$$,esc,title,empty,signed,modal,submit,close,toast,field,poll} from './core.js?v=20261007-account-security';
+import {identity} from './community.js?v=discord-signin';
+import {platformMarkup} from './platforms.js?v=discord-signin';
+import {api,state,$,$$,esc,title,empty,signed,modal,submit,close,toast,field,poll} from './core.js?v=discord-signin';
 export function events(root){root.innerHTML=`<iframe class="events-frame" title="XBT public event calendar" src="${['localhost','127.0.0.1'].includes(location.hostname)?'':'https://xbtesports-social.smithrock87.workers.dev'}/activetournament/?embed=1&v=20261007-account-security"></iframe>`;}
 
 function actions(p){if(p.id===state.user?.id)return '<a class="button outline" href="/social/profile" data-route>EDIT MY PROFILE</a>';return `<button class="button" data-friend="${esc(p.handle)}" data-action="${p.friendship==='accepted'?'remove':p.friendship==='pending'?p.friend_sender===state.user?.id?'cancel':'accept':'request'}">${p.friendship==='accepted'?'FRIENDS ':p.friendship==='pending'?p.friend_sender===state.user?.id?'CANCEL REQUEST':'ACCEPT FRIEND':'ADD FRIEND +'}</button>${p.friendship==='pending'&&p.friend_sender!==state.user?.id?`<button class="button outline" data-friend="${esc(p.handle)}" data-action="decline">DECLINE</button>`:''}<a class="button outline" href="/social/messages?to=${esc(p.handle)}" data-route>DM </a><button class="text-link" data-invite="${esc(p.handle)}">INVITE TO CREW</button>`;}

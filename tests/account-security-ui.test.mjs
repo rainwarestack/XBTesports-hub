@@ -4,16 +4,28 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const source=name=>readFileSync(new URL('../public/social/'+name,import.meta.url),'utf8').replace(/^import .*;\r?\n/gm,'').replace(/export /g,'');
 
-test('password sign-in waits for the second factor, then stores the session; forgot password uses email flow',async()=>{
- const nodes=new Map(),storage=new Map(),events=[];let response={requiresTwoFactor:true,challenge:'challenge'},challenge,forgot=false,recovery;
- function node(selector){if(!nodes.has(selector))nodes.set(selector,{innerHTML:'',addEventListener(name,fn){this[name]=fn;},querySelector(){return null;},insertAdjacentHTML(){}});return nodes.get(selector);}
- const context=vm.createContext({location:{hostname:'xbtesports.nyc'},document:{querySelector:node},sessionStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},installEditorGuard(){},resetEditor(){},setEditorSaving(){},providerButtons(){},FormData:class{constructor(){return [['handle','Player'],['password','test password 123']];}},Blob,ArrayBuffer,Event,window:{dispatchEvent:e=>events.push(e.type)},fetch:async()=>({ok:true,json:async()=>response}),challengePrompt:(data,finish)=>{challenge={data,finish};},forgotPassword:()=>forgot=true,saveSession:data=>{context.result=data;storage.set('xbt-social-session',data.token);},showRecovery:key=>recovery=key});
- node('#dialog').showModal=()=>node('#dialog').open=true;node('#dialog').close=()=>node('#dialog').open=false;
- vm.runInContext(source('core.js'),context);
- context.signIn();node('#auth-recover').onclick();assert.equal(forgot,true);
- await node('#auth-form').submit({preventDefault(){}});assert.equal(storage.size,0);assert.equal(challenge.data.challenge,'challenge');assert.deepEqual(events,[]);
- challenge.finish({token:'verified-session',user:{handle:'Player'}});assert.equal(storage.get('xbt-social-session'),'verified-session');assert.deepEqual(events,['xbt-session']);
- response={ok:true,recovery:'rotated-recovery-key'};context.signIn('recover');await node('#auth-form').submit({preventDefault(){}});assert.equal(storage.has('xbt-social-session'),false);assert.equal(recovery,'rotated-recovery-key');
+test('public sign-in offers Discord only, with no password or handle form',async()=>{
+ const nodes=new Map();
+ function node(selector){
+  if(!nodes.has(selector))nodes.set(selector,{innerHTML:'',isConnected:true,querySelector:node});
+  return nodes.get(selector);
+ }
+ const context=vm.createContext({
+  location:{hostname:'xbtesports.nyc'},document:{querySelector:node},
+  sessionStorage:{getItem:()=>null},installEditorGuard(){},resetEditor(){},
+  fetch:async()=>({ok:true,json:async()=>({providers:['Discord','Google']})})
+ });
+ node('#dialog').showModal=()=>node('#dialog').open=true;
+ vm.runInContext(source('core.js')+'\n'+source('oauth.js'),context);
+ context.signIn();
+ await context.providerButtons(node('#provider-signin'));
+ assert.match(node('#dialog-content').innerHTML,/Sign in to XBTesports/);
+ assert.doesNotMatch(node('#dialog-content').innerHTML,/<form|<input/);
+ const provider=node('#provider-signin');
+ assert.match(provider.innerHTML,/Sign in with Discord/);
+ assert.match(provider.innerHTML,/Opens Discord in a new window/);
+ assert.doesNotMatch(provider.innerHTML,/Google|<form|<input/);
+ assert.equal(typeof node('button').onclick,'function');
 });
 
 test('email-link tokens leave browser history immediately; reset requires matching passwords and forwards the second factor',async()=>{

@@ -1,10 +1,28 @@
-import {challengePrompt} from './security.js?v=20261007-account-security';
-import {api,state,modal,$,field,submit,close,toast} from './core.js?v=20261007-account-security';
+import {challengePrompt} from './security.js?v=discord-signin';
+import {api,state,modal,$,field,submit,close,toast} from './core.js?v=discord-signin';
 export async function providerButtons(root,link=false){
- try{const {providers}=await api('/oauth/providers');if(!root?.isConnected)return;const available=providers.filter(p=>['Google','Discord'].includes(p));if(!available.length)return;
- root.innerHTML=available.map(provider=>`<button type="button" data-provider="${provider}" class="button outline provider-button">${link?'Link '+provider+' to this account':'Sign in with '+provider}</button>`).join('')+`<p class="muted">${link?'Keep your current profile and add another way to sign in.':'New here? Choose your XBT handle after your identity is verified.'}</p>`;
- root.querySelectorAll('button').forEach(button=>button.onclick=()=>link?confirmLink(button.dataset.provider):start(false,button.dataset.provider));
- }catch{/* Password sign-in remains available if provider discovery fails. */}
+ try{
+  const {providers}=await api('/oauth/providers');
+  if(!root?.isConnected)return;
+  if(!link){
+   if(!providers.includes('Discord'))throw new Error('Discord is unavailable');
+   root.innerHTML=`<button type="button" class="button discord-signin-button">
+     <span class="discord-signin-label">Sign in with Discord</span>
+     <span class="discord-signin-detail">Opens Discord in a new window</span>
+     <span class="discord-signin-arrow" aria-hidden="true">↗</span>
+    </button>
+    <p class="muted">New to XBTesports? Choose your player handle after signing in.</p>`;
+   root.querySelector('button').onclick=()=>start(false,'Discord');
+   return;
+  }
+  const available=providers.filter(provider=>['Google','Discord'].includes(provider));
+  if(!available.length)return;
+  root.innerHTML=available.map(provider=>`<button type="button" data-provider="${provider}" class="button outline provider-button">Link ${provider} to this account</button>`).join('')+`<p class="muted">Keep your current profile and add another way to sign in.</p>`;
+  root.querySelectorAll('button').forEach(button=>button.onclick=()=>confirmLink(button.dataset.provider));
+ }catch{
+  if(!link&&root?.isConnected)root.innerHTML='<p class="error">Discord sign-in is unavailable right now. Please try again shortly.</p><button type="button" class="button outline">TRY AGAIN</button>';
+  if(!link&&root?.isConnected)root.querySelector('button').onclick=()=>providerButtons(root);
+ }
 }
 async function confirmLink(provider){
  try{const status=await api('/security/status');modal(`<h2>Link ${provider}</h2><p>Confirm your identity before adding another sign-in method. If you use provider sign-in, sign out and back in first if it has been over five minutes.</p><form id="confirm-provider">${status.hasPassword?field('current_password','Current password (optional after a recent sign-in)','','password','autocomplete="current-password"'):''}${status.twoFactor?field('code','Authenticator or backup code','','text','required autocomplete="one-time-code" maxlength="40"'):''}<button type="submit" class="button">CONTINUE TO ${provider.toUpperCase()}</button></form>`);submit($('#confirm-provider'),b=>start(true,provider,b));}catch(e){toast(e.message);}

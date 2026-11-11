@@ -1,4 +1,4 @@
-import {api,state,$,esc,field,modal,submit,close,toast,copy,signIn} from './core.js?v=20261007-account-security';
+import {api,state,$,esc,field,modal,submit,close,toast,copy,signIn} from './core.js?v=discord-signin';
 
 export function saveSession(data){if(!data.token)return;state.token=data.token;state.user=data.user;try{sessionStorage.setItem('xbt-social-session',data.token);}catch{}}
 export function showRecovery(key,reset=false){modal(`<h2>Save your recovery key</h2><p>${reset?'Your password has been reset. Sign in with your new password. ':''}Keep this key in your password manager. It replaces your previous recovery key. If two-factor authentication is enabled, recovery also needs an authenticator or backup code.</p><code class="security-key">${esc(key)}</code><div class="actions"><button class="button outline" id="save-key">COPY KEY</button><button class="button" id="saved-key">I SAVED IT</button></div>`);$('#save-key').onclick=()=>copy(key);$('#saved-key').onclick=()=>{close();if(reset)signIn();};}

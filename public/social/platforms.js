@@ -1,4 +1,4 @@
-import {esc} from './core.js?v=20261007-account-security';
+import {esc} from './core.js?v=discord-signin';
 export function platformMarkup(platform){
  if(!platform||platform==='Not specified')return '';
  const logo=platform.startsWith('Xbox')?'xbox':platform.startsWith('PlayStation')?'playstation':platform.startsWith('Nintendo')?'nintendoswitch':platform==='Steam Deck'?'steam':platform==='Android'?'android':platform==='iOS'?'apple':null;

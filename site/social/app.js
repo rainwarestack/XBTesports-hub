@@ -1,11 +1,11 @@
-import {accountSecurity,captureSecurityLink,openSecurityLink} from './security.js?v=20261007-account-security';
+import {accountSecurity,captureSecurityLink,openSecurityLink} from './security.js?v=discord-signin';
 const accountLink=captureSecurityLink();
-import {mountNotifications,refreshNotifications} from './notifications.js?v=20261007-account-security';
-import {players,liveSearch,events} from './network.js?v=catalog-badge-size';
-import {mountChat,messages} from './chat.js?v=20261007-account-security';
-import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=20261007-account-security';
-import {feed,profile,groups,notifications,search,postPage} from './community.js?v=catalog-badge-size';
-import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=20261007-account-security';
+import {mountNotifications,refreshNotifications} from './notifications.js?v=discord-signin';
+import {players,liveSearch,events} from './network.js?v=discord-signin';
+import {mountChat,messages} from './chat.js?v=discord-signin';
+import {api,state,$,$$,esc,avatar,title,empty,field,select,area,modal,close,submit,toast,signIn,ADMIN} from './core.js?v=discord-signin';
+import {feed,profile,groups,notifications,search,postPage} from './community.js?v=discord-signin';
+import {tournaments,tournamentPage,adminTournament,adminNav} from './tournaments.js?v=discord-signin';
 const navigation=[['Active Tournaments','/social/events',''],['Players','/social/players',''],['Crews','/social/crews',''],['Messages','/social/messages',''],['Battlefy','/social/tournaments','']];
 let generation=0;
 window.xbtNavigate=path=>{history.pushState({},'',path);render();};

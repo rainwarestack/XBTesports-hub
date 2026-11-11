@@ -34,3 +34,11 @@ body{background-image:radial-gradient(ellipse at 78% 24%,#e3193729,transparent 4
 
 .notification-link{display:inline-flex;align-items:center;gap:8px}.notification-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#ce1141;color:#fff;font:700 11px/1 Arial,sans-serif;flex-shrink:0}.notification-badge[hidden]{display:none}
 @media(max-width:760px){.sidebar .sidebar-bottom{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:10px 0}.sidebar .sidebar-bottom .notification-link{display:inline-flex}}
+
+.discord-signin-button.button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;width:100%;padding:16px 20px;text-align:left;background:#5865f2;color:#fff;border-color:#8891ff;text-transform:none;letter-spacing:normal}
+.discord-signin-button.button:hover{background:#4552dd;color:#fff}
+.discord-signin-button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.discord-signin-label{grid-column:1;grid-row:1;font-size:1.2rem;font-weight:700}
+.discord-signin-detail{grid-column:1;grid-row:2;font-size:.9rem;font-weight:500}
+.discord-signin-arrow{grid-column:2;grid-row:1 / span 2;align-self:center;font-size:1.35rem}
+.discord-signin>p{margin-top:12px}
