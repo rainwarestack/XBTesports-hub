@@ -105,9 +105,45 @@ test('profile validates customization and image ownership; GIF upload preserves 
  await assert.rejects(()=>picture({id:'outsider',status:'active'},saved.url),e=>e.status===403);
  await assert.rejects(()=>picture(user,uploadedFont.url),e=>e.status===400);
  await picture(user,saved.url);assert.equal(database.sqlite.prepare('SELECT avatar FROM groups WHERE id=?').get(group.id).avatar,saved.url);
+ const editCrew=(who,details)=>communityRoute(new Request('https://social.example/api/social/groups/'+group.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(details)}),env,'/groups/'+group.id,who);
+ await assert.rejects(()=>editCrew({id:'outsider',role:'administrator',status:'active'},{description:'Unauthorized'}),e=>e.status===403);
+ await assert.rejects(()=>editCrew(user,{name:'Invalid update',privacy:'Invalid'}),e=>e.status===400);
+ assert.equal(database.sqlite.prepare('SELECT name FROM groups WHERE id=?').get(group.id).name,'My Crew');
+ await editCrew(user,{name:'Updated Crew',description:'New description',games:'Halo',privacy:'Request to Join'});
+ await editCrew({id:'access-owner',role:'administrator',status:'active'},{description:''});
+ const crew=database.sqlite.prepare('SELECT * FROM groups WHERE id=?').get(group.id);
+ assert.equal(crew.name,'Updated Crew');
+ assert.equal(crew.description,'');
+ assert.equal(crew.games,'Halo');
+ assert.equal(crew.privacy,'Request to Join');
+ assert.equal(crew.avatar,saved.url);
+ await editCrew(user,{privacy:'Public'});
  await update({...base,avatar:'',font_url:'',country:''});const crewImage=await mediaRoute(new Request('https://social.example'+saved.url),env,saved.url.replace('/api/social',''),null);assert.equal(crewImage.status,200);database.sqlite.close();
 });
 const makePlayers=n=>Array.from({length:n},(_,i)=>({id:'p'+i,name:'Player '+i,handle:'player'+i,seed:i+1}));
+test('crew verification is site-owner only and appears in public crew reads',async()=>{
+ const database=db(),env={SOCIAL_DB:database};
+ const member={id:'crew-owner',handle:'crewowner',role:'administrator',status:'active'};
+ const siteOwner={id:'access-owner',role:'administrator',status:'active'};
+ database.sqlite.prepare("INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,'','','',?)").run(member.id,member.handle,'2026-11-10');
+ const call=(path,method,user,data)=>communityRoute(new Request('https://social.example/api/social'+path,{
+  method,headers:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)
+ }),env,path,user);
+ try{
+  const {id}=await call('/groups','POST',member,{name:'Test Crew',handle:'testcrew',privacy:'Public',verified:true});
+  const path='/groups/'+id;
+  assert.equal((await call(path,'GET')).group.verified,0);
+  await call(path,'PUT',member,{description:'Crew description',verified:true});
+  assert.equal((await call(path,'GET')).group.verified,0);
+  await assert.rejects(()=>call(path+'/verification','PUT',member,{verified:true}),error=>error.status===403);
+  await assert.rejects(()=>call(path+'/verification','PUT',siteOwner,{verified:'true'}),error=>error.status===400);
+  await call(path+'/verification','PUT',siteOwner,{verified:true});
+  assert.equal((await call('/groups','GET')).items[0].verified,1);
+  assert.equal((await call(path,'GET')).group.verified,1);
+  await call(path+'/verification','PUT',siteOwner,{verified:false});
+  assert.equal((await call(path,'GET')).group.verified,0);
+ }finally{database.sqlite.close();}
+});
 test('media uploads require login, persist bytes, respect visibility and reject excess size',async()=>{
  const database=db(),objects=new Map(),user={id:'media-test',status:'active'};
  database.sqlite.prepare("INSERT INTO users(id,handle,password_hash,salt,recovery_hash,created_at) VALUES(?,?,?,?,?,?)").run(user.id,'MediaTest','','','','2026-09-29');
@@ -127,7 +163,7 @@ test('media uploads require login, persist bytes, respect visibility and reject 
  await assert.rejects(()=>mediaRoute(upload(Buffer.from('<script>invalid</script>')),env,'/media',user),e=>e.status===400);
  assert.equal(objects.size,1);database.sqlite.close();
 });
-function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0003_network.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0004_oauth.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0005_google_oauth.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0006_profile_extras.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0007_account_security.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
+function db(){const sqlite=new DatabaseSync(':memory:');sqlite.exec(readFileSync(new URL('../worker/social/migrations/0001_social.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0002_discovery.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0003_network.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0004_oauth.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0005_google_oauth.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0006_profile_extras.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0007_account_security.sql',import.meta.url),'utf8'));sqlite.exec(readFileSync(new URL('../worker/social/migrations/0008_crew_verification.sql',import.meta.url),'utf8'));const adapter={prepare(sql){let args=[];return {bind(...v){args=v;return this;},async first(){return sqlite.prepare(sql).get(...args)||null;},async all(){return {results:sqlite.prepare(sql).all(...args)};},async run(){return {meta:{changes:sqlite.prepare(sql).run(...args).changes}};}};},async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sqlite.exec('COMMIT');return results;}catch(e){sqlite.exec('ROLLBACK');throw e;}},sqlite};return adapter;}
 test('single elimination completes with exactly one champion for 2–32 entrants',()=>{for(let n=2;n<=32;n++){let s=createBracket(makePlayers(n),'Single Elimination');let played=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:2,b:0});played++;}assert.equal(played,n-1);assert.ok(s.champion);assert.equal(standings(s).reduce((a,p)=>a+p.losses,0),n-1);}});
 test('double elimination requires two losses and handles final reset',()=>{for(const n of [2,3,4,5,8,12,16])for(const reset of [false,true]){let s=createBracket(makePlayers(n),'Double Elimination'),count=0;while(!s.completed){const m=s.matches.find(x=>x.status==='Ready');assert.ok(m,`stalled at ${n}`);s=result(s,m.id,{a:reset&&m.id==='GF'?0:2,b:reset&&m.id==='GF'?2:0});assert.ok(++count<2*n+5);}const stats=standings(s);for(const p of stats)assert.equal(p.losses,p.id===s.champion?(reset?1:0):2,`${n} ${p.id}`);assert.equal(s.matches.some(m=>m.id==='RESET'),reset);}});
 test('overriding upstream result clears dependent completed results',()=>{let s=createBracket(makePlayers(4),'Single Elimination');s=result(s,'W1-0',{a:1,b:0});s=result(s,'W1-1',{a:1,b:0});s=result(s,'W2-0',{a:1,b:0});assert.equal(s.completed,true);s=result(s,'W1-0',{a:0,b:1});assert.equal(s.completed,false);assert.equal(s.matches.find(m=>m.id==='W2-0').status,'Ready');assert.deepEqual(s.matches.find(m=>m.id==='W2-0').scores,[]);});
